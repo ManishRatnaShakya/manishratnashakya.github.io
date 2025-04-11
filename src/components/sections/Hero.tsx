@@ -55,12 +55,73 @@ const Hero = () => {
       id="home" 
       className="relative min-h-screen flex items-center justify-center section-padding overflow-hidden"
     >
-      <div className="absolute inset-0 z-0">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        {/* Gradient overlay */}
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-dark-100/50 via-dark/80 to-dark-200/50" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-highlight/20 rounded-full filter blur-3xl opacity-20" />
-        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-highlight-secondary/20 rounded-full filter blur-3xl opacity-10" />
+        
+        {/* Animated floating orbs */}
+        <motion.div 
+          className="absolute bottom-10 left-20 w-64 h-64 bg-highlight/20 rounded-full filter blur-3xl"
+          animate={{
+            y: [0, -30, 0],
+            opacity: [0.2, 0.3, 0.2],
+            scale: [1, 1.1, 1]
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        
+        <motion.div 
+          className="absolute top-1/4 right-1/4 w-96 h-96 bg-highlight-secondary/20 rounded-full filter blur-3xl"
+          animate={{
+            y: [0, 40, 0],
+            opacity: [0.1, 0.2, 0.1],
+            scale: [1, 1.2, 1]
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 1
+          }}
+        />
+        
+        <motion.div 
+          className="absolute top-3/4 right-1/3 w-48 h-48 bg-purple-500/10 rounded-full filter blur-3xl"
+          animate={{
+            x: [0, 30, 0],
+            opacity: [0.1, 0.2, 0.1],
+            scale: [1, 1.1, 1]
+          }}
+          transition={{
+            duration: 7,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 2
+          }}
+        />
+        
+        <motion.div 
+          className="absolute top-1/3 left-1/4 w-72 h-72 bg-blue-500/10 rounded-full filter blur-3xl"
+          animate={{
+            x: [0, -20, 0],
+            opacity: [0.15, 0.25, 0.15],
+            scale: [1, 1.15, 1]
+          }}
+          transition={{
+            duration: 9,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 3
+          }}
+        />
       </div>
 
+      {/* Content */}
       <div className="container mx-auto relative z-10">
         <div className="flex flex-col items-center text-center">
           <motion.h1 
@@ -117,12 +178,19 @@ const Hero = () => {
         </div>
       </div>
       
-      <a 
+      {/* Scroll down indicator */}
+      <motion.a 
         href="#about" 
         className="absolute bottom-10 left-1/2 transform -translate-x-1/2 text-gray-400 hover:text-white transition-colors"
+        animate={{ y: [0, 10, 0] }}
+        transition={{
+          duration: 2,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
       >
-        <ArrowDownCircle className="animate-bounce" />
-      </a>
+        <ArrowDownCircle />
+      </motion.a>
     </section>
   );
 };
