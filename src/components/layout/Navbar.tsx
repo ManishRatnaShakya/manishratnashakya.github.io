@@ -15,7 +15,7 @@ const navItems: NavItem[] = [
   { name: "About", href: "#about", icon: <User size={18} /> },
   { name: "Projects", href: "#projects", icon: <Briefcase size={18} /> },
   { name: "Experience", href: "#experience", icon: <Briefcase size={18} /> },
-  { name: "Education", href: "#education", icon: <Graduation size={18} /> },
+  { name: "Education", href: "#education", icon: <GraduationCap size={18} /> },
   { name: "Contact", href: "#contact", icon: <Phone size={18} /> },
 ];
 
