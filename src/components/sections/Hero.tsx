@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowDownCircle } from "lucide-react";
+import { ArrowDownCircle, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const Hero = () => {
@@ -95,12 +96,22 @@ const Hero = () => {
             >
               View Projects
             </Button>
+            
             <Button
               variant="outline"
               size="lg"
               className="border-highlight text-highlight hover:bg-highlight/10 rounded-full px-8"
             >
               Contact Me
+            </Button>
+            
+            <Button
+              variant="outline"
+              size="lg"
+              className="border-highlight-secondary text-highlight-secondary hover:bg-highlight-secondary/10 rounded-full px-8 flex items-center gap-2"
+              onClick={() => window.open('/sample-cv.pdf', '_blank')}
+            >
+              <Download size={18} /> Download CV
             </Button>
           </motion.div>
         </div>
