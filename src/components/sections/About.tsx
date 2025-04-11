@@ -1,0 +1,90 @@
+
+import React from "react";
+import { motion } from "framer-motion";
+import { Code, Palette, Globe, Lightbulb } from "lucide-react";
+
+const About = () => {
+  const skills = [
+    { name: "Development", icon: <Code size={24} />, description: "React, Node.js, TypeScript, Python" },
+    { name: "Design", icon: <Palette size={24} />, description: "Figma, Adobe XD, Photoshop" },
+    { name: "Digital Marketing", icon: <Globe size={24} />, description: "SEO, Content Strategy, Analytics" },
+    { name: "Creative Direction", icon: <Lightbulb size={24} />, description: "Brand Strategy, Visual Identity" },
+  ];
+
+  return (
+    <section id="about" className="section-padding bg-dark-200">
+      <div className="container mx-auto">
+        <div className="text-center mb-16">
+          <motion.h2 
+            className="text-3xl md:text-4xl font-bold mb-4"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: true }}
+          >
+            About <span className="text-gradient">Me</span>
+          </motion.h2>
+          <motion.div 
+            className="w-24 h-1 bg-highlight mx-auto mb-8"
+            initial={{ width: 0 }}
+            whileInView={{ width: 96 }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: true }}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: true }}
+          >
+            <div className="glass-card p-1 rounded-lg">
+              <div className="aspect-square rounded-lg bg-gradient-to-br from-highlight/20 to-highlight-secondary/20 overflow-hidden">
+                <div className="w-full h-full bg-gray-800 flex items-center justify-center text-gray-600">
+                  <span className="text-lg">Profile Image</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            className="space-y-6"
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            viewport={{ once: true }}
+          >
+            <h3 className="text-2xl font-bold">Professional Summary</h3>
+            <p className="text-gray-300">
+              I'm a creative professional with over 10 years of experience in digital design and development. 
+              My passion lies in creating meaningful digital experiences that merge aesthetics with functionality.
+            </p>
+            <p className="text-gray-300">
+              With a strong background in both design and development, I bring a unique perspective to projects 
+              that bridges technical implementation with creative vision.
+            </p>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
+              {skills.map((skill, index) => (
+                <div 
+                  key={index} 
+                  className="glass-card p-4 rounded-lg flex items-start gap-3"
+                >
+                  <div className="text-highlight mt-1">{skill.icon}</div>
+                  <div>
+                    <h4 className="font-semibold">{skill.name}</h4>
+                    <p className="text-sm text-gray-400">{skill.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default About;
