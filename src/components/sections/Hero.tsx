@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ArrowDownCircle } from "lucide-react";
@@ -9,70 +8,46 @@ const Hero = () => {
   const [roleIndex, setRoleIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
   
-  const fullName = "Manish Shakya";
   const roles = [
     "Creative Director",
-    "Full Stack Developer",
+    "Full Stack Developer", 
     "UI/UX Designer"
   ];
 
   useEffect(() => {
     let timeout: NodeJS.Timeout;
     
-    // If displaying the name
-    if (roleIndex === -1) {
-      if (displayText !== fullName) {
+    const currentRole = roles[roleIndex];
+    
+    if (!isDeleting) {
+      // Typing
+      if (displayText !== currentRole) {
         timeout = setTimeout(() => {
-          setDisplayText(fullName.substring(0, displayText.length + 1));
+          setDisplayText(currentRole.substring(0, displayText.length + 1));
         }, 100);
       } else {
-        // When name is fully typed, wait and start with roles
+        // Pause at the end of typing before deleting
         timeout = setTimeout(() => {
-          setRoleIndex(0);
-          setDisplayText("");
+          setIsDeleting(true);
         }, 1500);
       }
     } else {
-      // For roles
-      const currentRole = roles[roleIndex];
-      
-      if (!isDeleting) {
-        // Typing
-        if (displayText !== currentRole) {
-          timeout = setTimeout(() => {
-            setDisplayText(currentRole.substring(0, displayText.length + 1));
-          }, 100);
-        } else {
-          // Pause at the end of typing before deleting
-          timeout = setTimeout(() => {
-            setIsDeleting(true);
-          }, 1500);
-        }
+      // Deleting
+      if (displayText !== "") {
+        timeout = setTimeout(() => {
+          setDisplayText(displayText.substring(0, displayText.length - 1));
+        }, 50);
       } else {
-        // Deleting
-        if (displayText !== "") {
-          timeout = setTimeout(() => {
-            setDisplayText(displayText.substring(0, displayText.length - 1));
-          }, 50);
-        } else {
-          // Move to the next role or back to the name
-          setIsDeleting(false);
-          if (roleIndex === roles.length - 1) {
-            setRoleIndex(-1); // Go back to name
-          } else {
-            setRoleIndex(roleIndex + 1);
-          }
-        }
+        // Move to the next role
+        setIsDeleting(false);
+        setRoleIndex((prevIndex) => 
+          prevIndex === roles.length - 1 ? 0 : prevIndex + 1
+        );
       }
     }
     
     return () => clearTimeout(timeout);
   }, [displayText, roleIndex, isDeleting]);
-
-  // Start with the name
-  useEffect(() => {
-    setRoleIndex(-1);
-  }, []);
 
   return (
     <section 
@@ -93,11 +68,7 @@ const Hero = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            {roleIndex === -1 ? (
-              <>Hi, I'm <span className="text-gradient">{displayText}</span><span className="animate-pulse">|</span></>
-            ) : (
-              <>Hi, I'm <span className="text-gradient">Manish Shakya</span></>
-            )}
+            Hi, I'm <span className="text-gradient">Manish Shakya</span>
           </motion.h1>
           
           <motion.p 
@@ -106,12 +77,10 @@ const Hero = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            {roleIndex !== -1 && (
-              <span className="relative">
-                <span className="text-gradient">{displayText}</span>
-                <span className="animate-pulse inline-block ml-1">|</span>
-              </span>
-            )}
+            <span className="relative">
+              <span className="text-gradient">{displayText}</span>
+              <span className="animate-pulse inline-block ml-1">|</span>
+            </span>
           </motion.p>
           
           <motion.div
