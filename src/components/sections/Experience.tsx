@@ -1,7 +1,6 @@
-
 import React from "react";
 import { motion } from "framer-motion";
-import { Calendar, Briefcase } from "lucide-react";
+import { Calendar, Briefcase, Plus } from "lucide-react";
 
 type ExperienceItem = {
   id: number;

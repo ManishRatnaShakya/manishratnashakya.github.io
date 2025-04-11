@@ -1,7 +1,6 @@
-
 import React from "react";
 import { motion } from "framer-motion";
-import { Calendar, Graduation, Plus } from "lucide-react";
+import { Calendar, GraduationCap, Plus } from "lucide-react";
 
 type EducationItem = {
   id: number;
@@ -50,7 +49,7 @@ const TimelineItem = ({ item, index }: { item: EducationItem; index: number }) =
         </div>
         <div className="flex items-start ml-6">
           <div className="p-2 bg-highlight/20 rounded-full text-highlight mr-4">
-            <Graduation size={20} />
+            <GraduationCap size={20} />
           </div>
           <div>
             <h3 className="text-xl font-bold">{item.degree}</h3>

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { Menu, X, Home, User, Briefcase, Graduation, Phone } from "lucide-react";
+import { Menu, X, Home, User, Briefcase, GraduationCap, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
 
 type NavItem = {
