@@ -5,6 +5,7 @@ import { Book, Calendar, ArrowRight } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import { Link } from "react-router-dom";
 
 // Sample blog data, this would typically come from an API
 const blogPosts = [
@@ -87,12 +88,14 @@ const Blogs = () => {
                   {/* Additional content could go here */}
                 </CardContent>
                 <CardFooter>
-                  <Button 
-                    variant="ghost" 
-                    className="text-highlight hover:text-highlight-secondary hover:bg-dark-300/50"
-                  >
-                    Read More <ArrowRight size={16} className="ml-2" />
-                  </Button>
+                  <Link to={`/blog/${post.id}`}>
+                    <Button 
+                      variant="ghost" 
+                      className="text-highlight hover:text-highlight-secondary hover:bg-dark-300/50"
+                    >
+                      Read More <ArrowRight size={16} className="ml-2" />
+                    </Button>
+                  </Link>
                 </CardFooter>
               </Card>
             </motion.div>
