@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { ExternalLink, GitBranch, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 type Project = {
   id: number;
@@ -51,46 +52,52 @@ const projectData: Project[] = [
 const ProjectCard = ({ project }: { project: Project }) => {
   return (
     <motion.div
-      className="glass-card rounded-xl overflow-hidden group"
+      className="glass-card rounded-xl overflow-hidden group cursor-pointer"
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
       viewport={{ once: true }}
     >
-      <div className="aspect-video bg-dark-300 relative overflow-hidden">
-        {project.image ? (
-          <img
-            src={project.image}
-            alt={project.title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-600">
-            <span>Project Image</span>
-          </div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-dark-100/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-between p-4">
-          <div>
-            <h3 className="text-xl font-semibold">{project.title}</h3>
-          </div>
-          <a href={project.link} className="text-highlight hover:text-highlight-secondary transition-colors">
-            <ExternalLink size={20} />
-          </a>
-        </div>
-      </div>
-      <div className="p-5">
-        <p className="text-gray-300 mb-4">{project.description}</p>
-        <div className="flex flex-wrap gap-2">
-          {project.tags.map((tag, index) => (
-            <span
-              key={index}
-              className="text-xs px-2 py-1 rounded-full bg-dark-100 text-gray-300"
+      <Link to={`/project/${project.id}`} className="block h-full">
+        <div className="aspect-video bg-dark-300 relative overflow-hidden">
+          {project.image ? (
+            <img
+              src={project.image}
+              alt={project.title}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-gray-600">
+              <span>Project Image</span>
+            </div>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-dark-100/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-between p-4">
+            <div>
+              <h3 className="text-xl font-semibold">{project.title}</h3>
+            </div>
+            <a 
+              href={project.link} 
+              className="text-highlight hover:text-highlight-secondary transition-colors"
+              onClick={(e) => e.stopPropagation()}
             >
-              {tag}
-            </span>
-          ))}
+              <ExternalLink size={20} />
+            </a>
+          </div>
         </div>
-      </div>
+        <div className="p-5">
+          <p className="text-gray-300 mb-4">{project.description}</p>
+          <div className="flex flex-wrap gap-2">
+            {project.tags.map((tag, index) => (
+              <span
+                key={index}
+                className="text-xs px-2 py-1 rounded-full bg-dark-100 text-gray-300"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      </Link>
     </motion.div>
   );
 };
