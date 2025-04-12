@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { Menu, X, Home, User, Briefcase, GraduationCap, Phone } from "lucide-react";
+import { Menu, X, Home, User, Briefcase, GraduationCap, Phone, BookOpen } from "lucide-react";
 import { Link } from "react-router-dom";
 
 type NavItem = {
@@ -16,6 +16,7 @@ const navItems: NavItem[] = [
   { name: "Projects", href: "#projects", icon: <Briefcase size={18} /> },
   { name: "Experience", href: "#experience", icon: <Briefcase size={18} /> },
   { name: "Education", href: "#education", icon: <GraduationCap size={18} /> },
+  { name: "Blogs", href: "#blogs", icon: <BookOpen size={18} /> },
   { name: "Contact", href: "#contact", icon: <Phone size={18} /> },
 ];
 
