@@ -4,6 +4,7 @@ import { Session, User } from "@supabase/supabase-js";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Profile } from "@/types/database";
 
 interface AuthContextType {
   session: Session | null;
@@ -61,7 +62,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .from("profiles")
         .select("role")
         .eq("id", userId)
-        .single();
+        .single() as { data: { role: string } | null, error: any };
 
       if (error) {
         console.error("Error checking admin status:", error);
@@ -69,7 +70,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
 
-      setIsAdmin(data.role === "admin");
+      // Check if data exists before accessing role property
+      setIsAdmin(data && data.role === "admin");
     } catch (err) {
       console.error("Failed to check admin status:", err);
       setIsAdmin(false);

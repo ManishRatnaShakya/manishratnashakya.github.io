@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -6,6 +5,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PlusCircle, Pencil, Trash2, Save, X, Loader2, Calendar, Book } from "lucide-react";
+import { BlogPost } from "@/types/database";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,16 +15,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { format } from "date-fns";
-
-interface Blog {
-  id: string;
-  title: string;
-  excerpt: string;
-  content: string;
-  image_url: string | null;
-  category: string;
-  created_at: string;
-}
 
 const blogSchema = z.object({
   title: z.string().min(3, { message: "Title must be at least 3 characters" }),
@@ -37,7 +27,7 @@ const blogSchema = z.object({
 type BlogFormValues = z.infer<typeof blogSchema>;
 
 const BlogsManager = () => {
-  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [blogs, setBlogs] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -65,7 +55,7 @@ const BlogsManager = () => {
       const { data, error } = await supabase
         .from("blogs")
         .select("*")
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false }) as { data: BlogPost[] | null, error: any };
 
       if (error) throw error;
       setBlogs(data || []);
@@ -89,14 +79,18 @@ const BlogsManager = () => {
   const onSubmit = async (values: BlogFormValues) => {
     try {
       if (formAction === "add") {
-        const { error } = await supabase.from("blogs").insert([values]);
+        const { error } = await supabase
+          .from("blogs")
+          .insert([values]) as { error: any };
+          
         if (error) throw error;
         toast.success("Blog post added successfully");
       } else if (formAction === "edit" && editingId) {
         const { error } = await supabase
           .from("blogs")
           .update(values)
-          .eq("id", editingId);
+          .eq("id", editingId) as { error: any };
+          
         if (error) throw error;
         toast.success("Blog post updated successfully");
         setEditingId(null);
@@ -110,7 +104,7 @@ const BlogsManager = () => {
     }
   };
 
-  const handleEdit = (blog: Blog) => {
+  const handleEdit = (blog: BlogPost) => {
     setFormAction("edit");
     setEditingId(blog.id);
     form.reset({
@@ -125,7 +119,11 @@ const BlogsManager = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      const { error } = await supabase.from("blogs").delete().eq("id", id);
+      const { error } = await supabase
+        .from("blogs")
+        .delete()
+        .eq("id", id) as { error: any };
+        
       if (error) throw error;
       toast.success("Blog post deleted successfully");
       fetchBlogs();

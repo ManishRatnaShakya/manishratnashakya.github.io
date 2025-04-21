@@ -12,7 +12,7 @@ const AdminHeader = () => {
     <header className="bg-dark-300/80 backdrop-blur-md py-4 border-b border-highlight/10">
       <div className="container mx-auto px-4 flex justify-between items-center">
         <div className="flex items-center space-x-4">
-          <Link to="/" className="text-2xl font-bold text-gradient">Portfolio Admin</Link>
+          <Link to="/admin" className="text-2xl font-bold text-gradient">Portfolio Admin</Link>
         </div>
         
         <div className="flex items-center space-x-4">

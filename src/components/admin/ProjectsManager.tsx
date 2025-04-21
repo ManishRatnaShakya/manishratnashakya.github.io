@@ -6,6 +6,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PlusCircle, Pencil, Trash2, Save, X, Loader2 } from "lucide-react";
+import { Project } from "@/types/database";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,16 +15,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-
-interface Project {
-  id: string;
-  title: string;
-  description: string;
-  image_url: string | null;
-  technologies: string[];
-  github_url: string | null;
-  live_url: string | null;
-}
 
 const projectSchema = z.object({
   title: z.string().min(3, { message: "Title must be at least 3 characters" }),
@@ -34,7 +25,9 @@ const projectSchema = z.object({
   live_url: z.string().url({ message: "Please enter a valid URL" }).optional().or(z.literal("")),
 });
 
-type ProjectFormValues = z.infer<typeof projectSchema>;
+type ProjectFormValues = z.infer<typeof projectSchema> & {
+  technologies: string;
+};
 
 const ProjectsManager = () => {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -66,7 +59,7 @@ const ProjectsManager = () => {
       const { data, error } = await supabase
         .from("projects")
         .select("*")
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false }) as { data: Project[] | null, error: any };
 
       if (error) throw error;
       setProjects(data || []);
@@ -90,15 +83,25 @@ const ProjectsManager = () => {
 
   const onSubmit = async (values: ProjectFormValues) => {
     try {
+      // Create a copy of values with technologies transformed to array
+      const projectData = {
+        ...values,
+        technologies: values.technologies.split(",").map(t => t.trim())
+      };
+      
       if (formAction === "add") {
-        const { error } = await supabase.from("projects").insert([values]);
+        const { error } = await supabase
+          .from("projects")
+          .insert([projectData]) as { error: any };
+          
         if (error) throw error;
         toast.success("Project added successfully");
       } else if (formAction === "edit" && editingId) {
         const { error } = await supabase
           .from("projects")
-          .update(values)
-          .eq("id", editingId);
+          .update(projectData)
+          .eq("id", editingId) as { error: any };
+          
         if (error) throw error;
         toast.success("Project updated successfully");
         setEditingId(null);
@@ -128,7 +131,11 @@ const ProjectsManager = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      const { error } = await supabase.from("projects").delete().eq("id", id);
+      const { error } = await supabase
+        .from("projects")
+        .delete()
+        .eq("id", id) as { error: any };
+        
       if (error) throw error;
       toast.success("Project deleted successfully");
       fetchProjects();
