@@ -4,7 +4,10 @@ import { Session, User } from "@supabase/supabase-js";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Profile } from "@/types/database";
+import { Profile, CustomDatabase } from "@/types/database";
+
+// Create a typed client for our specific tables
+const supabaseTyped = supabase as unknown as ReturnType<typeof supabase<CustomDatabase>>;
 
 interface AuthContextType {
   session: Session | null;

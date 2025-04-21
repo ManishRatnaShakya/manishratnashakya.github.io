@@ -6,7 +6,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PlusCircle, Pencil, Trash2, Save, X, Loader2 } from "lucide-react";
-import { Project } from "@/types/database";
+import { Project, CustomDatabase } from "@/types/database";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+
+// Create a typed client for our specific tables
+const supabaseTyped = supabase as unknown as ReturnType<typeof supabase<CustomDatabase>>;
 
 const projectSchema = z.object({
   title: z.string().min(3, { message: "Title must be at least 3 characters" }),

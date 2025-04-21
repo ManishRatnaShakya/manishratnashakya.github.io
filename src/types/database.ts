@@ -30,3 +30,26 @@ export interface Profile {
   created_at?: string;
   updated_at?: string;
 }
+
+// Define a custom type for Supabase client to use with our tables
+export type CustomDatabase = {
+  public: {
+    Tables: {
+      blogs: {
+        Row: BlogPost;
+        Insert: Omit<BlogPost, 'id' | 'created_at'>;
+        Update: Partial<Omit<BlogPost, 'id' | 'created_at'>>;
+      };
+      projects: {
+        Row: Project;
+        Insert: Omit<Project, 'id' | 'created_at'>;
+        Update: Partial<Omit<Project, 'id' | 'created_at'>>;
+      };
+      profiles: {
+        Row: Profile;
+        Insert: Omit<Profile, 'created_at' | 'updated_at'>;
+        Update: Partial<Omit<Profile, 'id' | 'created_at' | 'updated_at'>>;
+      };
+    };
+  };
+};

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -5,7 +6,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PlusCircle, Pencil, Trash2, Save, X, Loader2, Calendar, Book } from "lucide-react";
-import { BlogPost } from "@/types/database";
+import { BlogPost, CustomDatabase } from "@/types/database";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { format } from "date-fns";
+
+// Create a typed client for our specific tables
+const supabaseTyped = supabase as unknown as ReturnType<typeof supabase<CustomDatabase>>;
 
 const blogSchema = z.object({
   title: z.string().min(3, { message: "Title must be at least 3 characters" }),
@@ -52,6 +56,7 @@ const BlogsManager = () => {
   const fetchBlogs = async () => {
     setLoading(true);
     try {
+      // Create a typed query
       const { data, error } = await supabase
         .from("blogs")
         .select("*")
