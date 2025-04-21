@@ -6,9 +6,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Profile, CustomDatabase } from "@/types/database";
 
-// Create a typed client for our specific tables
-const supabaseTyped = supabase as unknown as ReturnType<typeof supabase<CustomDatabase>>;
-
 interface AuthContextType {
   session: Session | null;
   user: User | null;
