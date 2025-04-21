@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { Menu, X, Home, User, Briefcase, GraduationCap, Phone, BookOpen } from "lucide-react";
+import { Menu, X, Home, User, Briefcase, GraduationCap, Phone, BookOpen, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 type NavItem = {
   name: string;
@@ -23,6 +24,7 @@ const navItems: NavItem[] = [
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { user, isAdmin } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -57,6 +59,25 @@ export function Navbar() {
               {item.name}
             </a>
           ))}
+          
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className="text-sm text-highlight hover:text-highlight/80 transition-colors flex items-center gap-1.5"
+            >
+              <Settings size={18} />
+              Admin
+            </Link>
+          )}
+          
+          {!user && (
+            <Link
+              to="/auth"
+              className="text-sm text-highlight border border-highlight/50 px-3 py-1 rounded hover:bg-highlight/10 transition-colors flex items-center gap-1.5"
+            >
+              Sign In
+            </Link>
+          )}
         </div>
 
         {/* Mobile Navigation Toggle */}
@@ -88,6 +109,27 @@ export function Navbar() {
               {item.name}
             </a>
           ))}
+          
+          {isAdmin && (
+            <Link
+              to="/admin"
+              onClick={() => setIsOpen(false)}
+              className="text-xl text-highlight hover:text-highlight/80 transition-colors flex items-center gap-2"
+            >
+              <Settings size={18} />
+              Admin
+            </Link>
+          )}
+          
+          {!user && (
+            <Link
+              to="/auth"
+              onClick={() => setIsOpen(false)}
+              className="text-xl text-highlight border border-highlight/50 px-4 py-2 rounded hover:bg-highlight/10 transition-colors flex items-center gap-2"
+            >
+              Sign In
+            </Link>
+          )}
         </div>
       </div>
     </nav>
