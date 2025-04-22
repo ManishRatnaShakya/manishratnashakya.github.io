@@ -5,7 +5,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PlusCircle, Pencil, Trash2, Save, X, Loader2 } from "lucide-react";
-import { Project, CustomDatabase } from "@/types/database";
+import { Project } from "@/types/database";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,9 +24,7 @@ const projectSchema = z.object({
   live_url: z.string().url({ message: "Please enter a valid URL" }).optional().or(z.literal("")),
 });
 
-type ProjectFormValues = z.infer<typeof projectSchema> & {
-  technologies: string;
-};
+type ProjectFormValues = z.infer<typeof projectSchema>;
 
 const ProjectsManager = () => {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -58,7 +56,7 @@ const ProjectsManager = () => {
       const { data, error } = await supabase
         .from("projects")
         .select("*")
-        .order("created_at", { ascending: false }) as { data: Project[] | null, error: any };
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
       setProjects(data || []);
@@ -82,16 +80,19 @@ const ProjectsManager = () => {
 
   const onSubmit = async (values: ProjectFormValues) => {
     try {
-      // Create a copy of values with technologies transformed to array
       const projectData = {
-        ...values,
-        technologies: values.technologies.split(",").map(t => t.trim())
+        title: values.title,
+        description: values.description,
+        image_url: values.image_url || null,
+        technologies: values.technologies,
+        github_url: values.github_url || null,
+        live_url: values.live_url || null,
       };
       
       if (formAction === "add") {
         const { error } = await supabase
           .from("projects")
-          .insert([projectData]) as { error: any };
+          .insert([projectData]);
           
         if (error) throw error;
         toast.success("Project added successfully");
@@ -99,7 +100,7 @@ const ProjectsManager = () => {
         const { error } = await supabase
           .from("projects")
           .update(projectData)
-          .eq("id", editingId) as { error: any };
+          .eq("id", editingId);
           
         if (error) throw error;
         toast.success("Project updated successfully");
@@ -133,7 +134,7 @@ const ProjectsManager = () => {
       const { error } = await supabase
         .from("projects")
         .delete()
-        .eq("id", id) as { error: any };
+        .eq("id", id);
         
       if (error) throw error;
       toast.success("Project deleted successfully");
