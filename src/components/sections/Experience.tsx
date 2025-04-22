@@ -1,6 +1,11 @@
-import React from "react";
+
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Calendar, Briefcase, Plus } from "lucide-react";
+import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
 type ExperienceItem = {
   id: number;
@@ -11,7 +16,7 @@ type ExperienceItem = {
   skills: string[];
 };
 
-const experienceData: ExperienceItem[] = [
+const initialExperienceData: ExperienceItem[] = [
   {
     id: 1,
     title: "Senior Front-End Developer",
@@ -77,13 +82,57 @@ const TimelineItem = ({ item, index }: { item: ExperienceItem; index: number }) 
           </div>
         </motion.div>
       </div>
-
       <div className="md:w-1/2 hidden md:block" />
     </div>
   );
 };
 
 const Experience = () => {
+  const [experiences, setExperiences] = useState<ExperienceItem[]>(initialExperienceData);
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState({
+    title: "",
+    company: "",
+    date: "",
+    description: "",
+    skills: "",
+  });
+  const [formError, setFormError] = useState<string | null>(null);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+  };
+
+  const handleAddExperience = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.title || !form.company || !form.date || !form.description) {
+      setFormError("All fields are required");
+      return;
+    }
+    const newExperience: ExperienceItem = {
+      id: Date.now(),
+      title: form.title,
+      company: form.company,
+      date: form.date,
+      description: form.description,
+      skills: form.skills
+        .split(",")
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0),
+    };
+    setExperiences([newExperience, ...experiences]);
+    setForm({
+      title: "",
+      company: "",
+      date: "",
+      description: "",
+      skills: "",
+    });
+    setFormError(null);
+    setOpen(false);
+  };
+
   return (
     <section id="experience" className="section-padding bg-dark-100">
       <div className="container mx-auto">
@@ -105,14 +154,11 @@ const Experience = () => {
             viewport={{ once: true }}
           />
         </div>
-
         <div className="relative">
           <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-highlight/50 via-highlight/30 to-highlight/10 transform -translate-x-1/2" />
-          
-          {experienceData.map((item, index) => (
+          {experiences.map((item, index) => (
             <TimelineItem key={item.id} item={item} index={index} />
           ))}
-          
           <motion.div
             className="flex justify-center mt-12"
             initial={{ opacity: 0, y: 20 }}
@@ -120,10 +166,65 @@ const Experience = () => {
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            <button className="glass-card hover:bg-dark-300/50 transition-colors px-6 py-3 rounded-full text-highlight">
-              <Plus size={18} className="inline mr-2" />
-              Add Experience
-            </button>
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <button className="glass-card hover:bg-dark-300/50 transition-colors px-6 py-3 rounded-full text-highlight flex items-center">
+                  <Plus size={18} className="inline mr-2" />
+                  Add Experience
+                </button>
+              </DialogTrigger>
+              <DialogContent className="bg-dark-200 border-highlight/20">
+                <DialogHeader>
+                  <DialogTitle>Add Experience</DialogTitle>
+                </DialogHeader>
+                <form className="space-y-4 pt-4" onSubmit={handleAddExperience}>
+                  <Input
+                    name="title"
+                    value={form.title}
+                    onChange={handleInputChange}
+                    placeholder="Job Title"
+                  />
+                  <Input
+                    name="company"
+                    value={form.company}
+                    onChange={handleInputChange}
+                    placeholder="Company"
+                  />
+                  <Input
+                    name="date"
+                    value={form.date}
+                    onChange={handleInputChange}
+                    placeholder="Date (e.g. 2022 - Present)"
+                  />
+                  <Textarea
+                    name="description"
+                    value={form.description}
+                    onChange={handleInputChange}
+                    placeholder="Description"
+                    rows={3}
+                  />
+                  <Input
+                    name="skills"
+                    value={form.skills}
+                    onChange={handleInputChange}
+                    placeholder="Skills (comma separated)"
+                  />
+                  {formError && (
+                    <div className="text-sm text-red-500">{formError}</div>
+                  )}
+                  <DialogFooter>
+                    <Button type="submit" className="bg-highlight hover:bg-highlight/90 w-full">
+                      Add Experience
+                    </Button>
+                    <DialogClose asChild>
+                      <Button type="button" variant="outline" className="w-full mt-2">
+                        Cancel
+                      </Button>
+                    </DialogClose>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
           </motion.div>
         </div>
       </div>
