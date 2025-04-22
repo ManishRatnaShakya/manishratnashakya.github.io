@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -47,10 +46,16 @@ const AddProjectModal = ({
   const onSubmit = async (values: ProjectFormValues) => {
     try {
       const projectData = {
-        ...values,
+        title: values.title,
+        description: values.description,
+        image_url: values.image_url || null,
         technologies: values.technologies,
+        github_url: values.github_url || null,
+        live_url: values.live_url || null,
       };
-      const { error } = await supabase.from("projects").insert([projectData]);
+      const { error } = await supabase
+        .from("projects")
+        .insert([projectData]);
       if (error) throw error;
       toast.success("Project added successfully!");
       form.reset();
@@ -82,7 +87,6 @@ const AddProjectModal = ({
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="description"
@@ -101,7 +105,6 @@ const AddProjectModal = ({
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="image_url"
@@ -115,7 +118,6 @@ const AddProjectModal = ({
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="technologies"
@@ -129,7 +131,6 @@ const AddProjectModal = ({
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="github_url"
@@ -143,7 +144,6 @@ const AddProjectModal = ({
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="live_url"
@@ -157,7 +157,6 @@ const AddProjectModal = ({
                   </FormItem>
                 )}
               />
-
               <div className="flex space-x-2 pt-4">
                 <Button
                   type="submit"

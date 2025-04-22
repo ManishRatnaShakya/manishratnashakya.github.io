@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ExternalLink, Plus } from "lucide-react";
@@ -73,7 +72,6 @@ const Projects = () => {
 
   useEffect(() => {
     fetchProjects();
-    // eslint-disable-next-line
   }, []);
 
   const fetchProjects = async () => {
@@ -83,7 +81,7 @@ const Projects = () => {
       .select("*")
       .order("created_at", { ascending: false });
 
-    if (data) setProjects(data);
+    if (data) setProjects(data as Project[]);
     setLoading(false);
   };
 
@@ -144,7 +142,7 @@ const Projects = () => {
               )}
             </div>
             <AddProjectModal 
-              open={showAddModal}
+              open={!!user && showAddModal}
               onOpenChange={setShowAddModal}
               onProjectAdded={handleProjectAdded}
             />
