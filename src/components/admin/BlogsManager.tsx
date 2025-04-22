@@ -1,35 +1,50 @@
 
-import React, { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
+import React, { useEffect, useState } from "react";
+import { blogSchema, useBlogsManager, BlogFormValues } from "@/hooks/useBlogsManager";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Book, Calendar, Pencil, Trash2, Save, X, Loader2 } from "lucide-react";
-import { BlogPost } from "@/types/database";
-
+import { useForm } from "react-hook-form";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from "@/components/ui/form";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger
+} from "@/components/ui/sheet";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from "@/components/ui/alert-dialog";
 import { format } from "date-fns";
-
-const blogSchema = z.object({
-  title: z.string().min(3, { message: "Title must be at least 3 characters" }),
-  excerpt: z.string().min(10, { message: "Excerpt must be at least 10 characters" }),
-  content: z.string().min(50, { message: "Content must be at least 50 characters" }),
-  image_url: z.string().url({ message: "Please enter a valid URL" }).or(z.literal("")).optional(),
-  category: z.string().min(2, { message: "Category must be at least 2 characters" }),
-});
-
-type BlogFormValues = z.infer<typeof blogSchema>;
+import { Book, Calendar, Edit, Trash, Save, X } from "lucide-react";
 
 const BlogsManager = () => {
-  const [blogs, setBlogs] = useState<BlogPost[]>([]);
-  const [loading, setLoading] = useState(true);
+  const {
+    blogs,
+    loading,
+    fetchBlogs,
+    addBlog,
+    editBlog,
+    deleteBlog
+  } = useBlogsManager();
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -48,25 +63,7 @@ const BlogsManager = () => {
 
   useEffect(() => {
     fetchBlogs();
-  }, []);
-
-  const fetchBlogs = async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from("blogs")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      setBlogs((data || []) as BlogPost[]);
-    } catch (error: any) {
-      toast.error(error.message || "Failed to fetch blogs");
-      setBlogs([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [fetchBlogs]);
 
   const resetForm = () => {
     form.reset({
@@ -81,45 +78,19 @@ const BlogsManager = () => {
   const onSubmit = async (values: BlogFormValues) => {
     try {
       if (formAction === "add") {
-        // Insert one blog
-        const { error } = await supabase
-          .from("blogs")
-          .insert([
-            {
-              title: values.title,
-              excerpt: values.excerpt,
-              content: values.content,
-              image_url: values.image_url || null,
-              category: values.category,
-            }
-          ]);
-        if (error) throw error;
-        toast.success("Blog post added successfully");
+        await addBlog(values);
       } else if (formAction === "edit" && editingId) {
-        const { error } = await supabase
-          .from("blogs")
-          .update({
-            title: values.title,
-            excerpt: values.excerpt,
-            content: values.content,
-            image_url: values.image_url || null,
-            category: values.category,
-          })
-          .eq("id", editingId);
-        if (error) throw error;
-        toast.success("Blog post updated successfully");
+        await editBlog(editingId, values);
         setEditingId(null);
       }
-
       resetForm();
       setIsAdding(false);
-      fetchBlogs();
-    } catch (error: any) {
-      toast.error(error.message || "Failed to save blog post");
+    } catch {
+      // Errors already handled in hook
     }
   };
 
-  const handleEdit = (blog: BlogPost) => {
+  const handleEdit = (blog: any) => {
     setFormAction("edit");
     setEditingId(blog.id);
     form.reset({
@@ -132,19 +103,9 @@ const BlogsManager = () => {
     setIsAdding(true);
   };
 
-  const handleDelete = async (id: string) => {
-    try {
-      const { error } = await supabase
-        .from("blogs")
-        .delete()
-        .eq("id", id);
-
-      if (error) throw error;
-      toast.success("Blog post deleted successfully");
-      fetchBlogs();
-    } catch (error: any) {
-      toast.error(error.message || "Failed to delete blog post");
-    } finally {
+  const handleDelete = async () => {
+    if (deleteId) {
+      await deleteBlog(deleteId);
       setDeleteId(null);
     }
   };
@@ -162,8 +123,7 @@ const BlogsManager = () => {
         <Sheet open={isAdding} onOpenChange={setIsAdding}>
           <SheetTrigger asChild>
             <Button onClick={handleAddNew} className="bg-highlight hover:bg-highlight/90">
-              {/* Use only the allowed Lucide icon */}
-              <Pencil className="mr-2 h-4 w-4" />
+              <Edit className="mr-2 h-4 w-4" />
               Add New Blog Post
             </Button>
           </SheetTrigger>
@@ -277,7 +237,7 @@ const BlogsManager = () => {
       </div>
       {loading ? (
         <div className="flex justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-highlight" />
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-highlight"></div>
         </div>
       ) : blogs.length === 0 ? (
         <div className="text-center py-12 text-gray-400">
@@ -310,9 +270,9 @@ const BlogsManager = () => {
                       onClick={() => handleEdit(blog)}
                       className="text-gray-400 hover:text-white"
                     >
-                      <Pencil className="h-4 w-4" />
+                      <Edit className="h-4 w-4" />
                     </Button>
-                    <AlertDialog>
+                    <AlertDialog open={deleteId === blog.id} onOpenChange={(v) => !v && setDeleteId(null)}>
                       <AlertDialogTrigger asChild>
                         <Button
                           size="sm"
@@ -320,7 +280,7 @@ const BlogsManager = () => {
                           className="text-gray-400 hover:text-red-500"
                           onClick={() => setDeleteId(blog.id)}
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash className="h-4 w-4" />
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent className="bg-dark-200/95 border-highlight/20">
@@ -334,7 +294,7 @@ const BlogsManager = () => {
                           <AlertDialogCancel className="bg-transparent border-gray-600 text-white hover:bg-dark-300/50">Cancel</AlertDialogCancel>
                           <AlertDialogAction
                             className="bg-red-600 hover:bg-red-700"
-                            onClick={() => deleteId && handleDelete(deleteId)}
+                            onClick={handleDelete}
                           >
                             Delete
                           </AlertDialogAction>
@@ -353,4 +313,3 @@ const BlogsManager = () => {
 };
 
 export default BlogsManager;
-
