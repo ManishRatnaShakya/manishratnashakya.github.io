@@ -1,11 +1,12 @@
+
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { PlusCircle, Pencil, Trash2, Save, X, Loader2, Calendar, Book } from "lucide-react";
-import { BlogPost, CustomDatabase } from "@/types/database";
+import { Book, Calendar, Pencil, Trash2, Save, X, Loader2 } from "lucide-react";
+import { BlogPost } from "@/types/database";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,7 +21,7 @@ const blogSchema = z.object({
   title: z.string().min(3, { message: "Title must be at least 3 characters" }),
   excerpt: z.string().min(10, { message: "Excerpt must be at least 10 characters" }),
   content: z.string().min(50, { message: "Content must be at least 50 characters" }),
-  image_url: z.string().url({ message: "Please enter a valid URL" }).optional().or(z.literal("")),
+  image_url: z.string().url({ message: "Please enter a valid URL" }).or(z.literal("")).optional(),
   category: z.string().min(2, { message: "Category must be at least 2 characters" }),
 });
 
@@ -55,12 +56,13 @@ const BlogsManager = () => {
       const { data, error } = await supabase
         .from("blogs")
         .select("*")
-        .order("created_at", { ascending: false }) as { data: BlogPost[] | null, error: any };
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setBlogs(data || []);
+      setBlogs((data || []) as BlogPost[]);
     } catch (error: any) {
       toast.error(error.message || "Failed to fetch blogs");
+      setBlogs([]);
     } finally {
       setLoading(false);
     }
@@ -79,23 +81,36 @@ const BlogsManager = () => {
   const onSubmit = async (values: BlogFormValues) => {
     try {
       if (formAction === "add") {
+        // Insert one blog
         const { error } = await supabase
           .from("blogs")
-          .insert([values]) as { error: any };
-          
+          .insert([
+            {
+              title: values.title,
+              excerpt: values.excerpt,
+              content: values.content,
+              image_url: values.image_url || null,
+              category: values.category,
+            }
+          ]);
         if (error) throw error;
         toast.success("Blog post added successfully");
       } else if (formAction === "edit" && editingId) {
         const { error } = await supabase
           .from("blogs")
-          .update(values)
-          .eq("id", editingId) as { error: any };
-          
+          .update({
+            title: values.title,
+            excerpt: values.excerpt,
+            content: values.content,
+            image_url: values.image_url || null,
+            category: values.category,
+          })
+          .eq("id", editingId);
         if (error) throw error;
         toast.success("Blog post updated successfully");
         setEditingId(null);
       }
-      
+
       resetForm();
       setIsAdding(false);
       fetchBlogs();
@@ -122,8 +137,8 @@ const BlogsManager = () => {
       const { error } = await supabase
         .from("blogs")
         .delete()
-        .eq("id", id) as { error: any };
-        
+        .eq("id", id);
+
       if (error) throw error;
       toast.success("Blog post deleted successfully");
       fetchBlogs();
@@ -147,7 +162,8 @@ const BlogsManager = () => {
         <Sheet open={isAdding} onOpenChange={setIsAdding}>
           <SheetTrigger asChild>
             <Button onClick={handleAddNew} className="bg-highlight hover:bg-highlight/90">
-              <PlusCircle className="mr-2 h-4 w-4" />
+              {/* Use only the allowed Lucide icon */}
+              <Pencil className="mr-2 h-4 w-4" />
               Add New Blog Post
             </Button>
           </SheetTrigger>
@@ -173,7 +189,6 @@ const BlogsManager = () => {
                       </FormItem>
                     )}
                   />
-                  
                   <FormField
                     control={form.control}
                     name="category"
@@ -187,7 +202,6 @@ const BlogsManager = () => {
                       </FormItem>
                     )}
                   />
-                  
                   <FormField
                     control={form.control}
                     name="excerpt"
@@ -195,18 +209,17 @@ const BlogsManager = () => {
                       <FormItem>
                         <FormLabel>Excerpt</FormLabel>
                         <FormControl>
-                          <Textarea 
-                            placeholder="A short summary of the blog post" 
+                          <Textarea
+                            placeholder="A short summary of the blog post"
                             rows={2}
-                            {...field} 
-                            className="bg-dark-300/50" 
+                            {...field}
+                            className="bg-dark-300/50"
                           />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  
                   <FormField
                     control={form.control}
                     name="content"
@@ -214,18 +227,17 @@ const BlogsManager = () => {
                       <FormItem>
                         <FormLabel>Content</FormLabel>
                         <FormControl>
-                          <Textarea 
-                            placeholder="Full blog post content" 
+                          <Textarea
+                            placeholder="Full blog post content"
                             rows={8}
-                            {...field} 
-                            className="bg-dark-300/50" 
+                            {...field}
+                            className="bg-dark-300/50"
                           />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  
                   <FormField
                     control={form.control}
                     name="image_url"
@@ -239,18 +251,17 @@ const BlogsManager = () => {
                       </FormItem>
                     )}
                   />
-                  
                   <div className="flex space-x-2 pt-4">
-                    <Button 
-                      type="submit" 
+                    <Button
+                      type="submit"
                       className="flex-1 bg-highlight hover:bg-highlight/90"
                     >
                       <Save className="mr-2 h-4 w-4" />
                       Save Blog Post
                     </Button>
-                    <Button 
-                      type="button" 
-                      variant="outline" 
+                    <Button
+                      type="button"
+                      variant="outline"
                       onClick={() => setIsAdding(false)}
                       className="border-gray-600"
                     >
@@ -264,7 +275,6 @@ const BlogsManager = () => {
           </SheetContent>
         </Sheet>
       </div>
-
       {loading ? (
         <div className="flex justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-highlight" />
@@ -282,7 +292,6 @@ const BlogsManager = () => {
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
                     <h3 className="text-xl font-semibold">{blog.title}</h3>
-                    
                     <div className="flex items-center text-sm text-highlight mt-1 mb-2">
                       <Book size={16} className="mr-1" />
                       <span>{blog.category}</span>
@@ -292,24 +301,21 @@ const BlogsManager = () => {
                         {format(new Date(blog.created_at), "MMMM d, yyyy")}
                       </span>
                     </div>
-                    
                     <p className="text-gray-400 line-clamp-2">{blog.excerpt}</p>
                   </div>
-                  
                   <div className="flex space-x-2">
-                    <Button 
-                      size="sm" 
+                    <Button
+                      size="sm"
                       variant="ghost"
                       onClick={() => handleEdit(blog)}
                       className="text-gray-400 hover:text-white"
                     >
                       <Pencil className="h-4 w-4" />
                     </Button>
-                    
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           variant="ghost"
                           className="text-gray-400 hover:text-red-500"
                           onClick={() => setDeleteId(blog.id)}
@@ -347,3 +353,4 @@ const BlogsManager = () => {
 };
 
 export default BlogsManager;
+
