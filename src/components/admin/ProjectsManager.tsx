@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -20,7 +21,7 @@ const projectSchema = z.object({
   description: z.string().min(10, { message: "Description must be at least 10 characters" }),
   image_url: z.string().url({ message: "Please enter a valid URL" }).optional().or(z.literal("")),
   technologies: z.string()
-    .transform((val) => val.split(",").map((t) => t.trim()).filter(t => t !== "")),
+    .transform((val) => val ? val.split(",").map((t) => t.trim()).filter(t => t !== "") : []),
   github_url: z.string().url({ message: "Please enter a valid URL" }).optional().or(z.literal("")),
   live_url: z.string().url({ message: "Please enter a valid URL" }).optional().or(z.literal("")),
 });
@@ -81,9 +82,7 @@ const ProjectsManager = () => {
 
   const onSubmit = async (values: ProjectFormValues) => {
     try {
-      const techArray = typeof values.technologies === 'string' 
-        ? values.technologies.split(',').map(t => t.trim()).filter(t => t !== '') 
-        : values.technologies;
+      const techArray = Array.isArray(values.technologies) ? values.technologies : [];
       
       const projectData = {
         title: values.title,

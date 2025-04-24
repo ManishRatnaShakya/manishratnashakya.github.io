@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Calendar, GraduationCap, Plus, X } from "lucide-react";
@@ -98,7 +99,10 @@ const Education = () => {
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     const newEducation: EducationItem = {
       id: educationItems.length + 1,
-      ...values,
+      degree: values.degree,
+      institution: values.institution,
+      date: values.date,
+      description: values.description,
     };
     setEducationItems([...educationItems, newEducation]);
     setIsDialogOpen(false);
