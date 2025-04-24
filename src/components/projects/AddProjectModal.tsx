@@ -22,7 +22,15 @@ const projectSchema = z.object({
   live_url: z.string().url({ message: "Please enter a valid URL" }).optional().or(z.literal("")),
 });
 
-type ProjectFormValues = z.infer<typeof projectSchema>;
+// Define a specific type for the form values that includes technologies as string
+type ProjectFormValues = {
+  title: string;
+  description: string;
+  image_url: string;
+  technologies: string;  // This remains a string for form input
+  github_url: string;
+  live_url: string;
+};
 
 const AddProjectModal = ({
   open,
@@ -47,7 +55,9 @@ const AddProjectModal = ({
 
   const onSubmit = async (values: ProjectFormValues) => {
     try {
-      const techArray = Array.isArray(values.technologies) ? values.technologies : [];
+      const techArray = values.technologies
+        ? values.technologies.split(',').map(t => t.trim()).filter(t => t !== '')
+        : [];
       
       const projectData = {
         title: values.title,
