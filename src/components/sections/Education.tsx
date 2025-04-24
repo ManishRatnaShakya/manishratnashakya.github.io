@@ -1,6 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Calendar, GraduationCap, Plus } from "lucide-react";
+import { Calendar, GraduationCap, Plus, X } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 type EducationItem = {
   id: number;
@@ -33,6 +41,13 @@ const educationData: EducationItem[] = [
     description: "Comprehensive UX certification covering research methods, interaction design, and usability testing."
   }
 ];
+
+const formSchema = z.object({
+  degree: z.string().min(1, "Degree is required"),
+  institution: z.string().min(1, "Institution is required"),
+  date: z.string().min(1, "Date is required"),
+  description: z.string().min(1, "Description is required"),
+});
 
 const TimelineItem = ({ item, index }: { item: EducationItem; index: number }) => {
   return (
@@ -67,6 +82,29 @@ const TimelineItem = ({ item, index }: { item: EducationItem; index: number }) =
 };
 
 const Education = () => {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [educationItems, setEducationItems] = useState(educationData);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      degree: "",
+      institution: "",
+      date: "",
+      description: "",
+    },
+  });
+
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    const newEducation: EducationItem = {
+      id: educationItems.length + 1,
+      ...values,
+    };
+    setEducationItems([...educationItems, newEducation]);
+    setIsDialogOpen(false);
+    form.reset();
+  };
+
   return (
     <section id="education" className="section-padding">
       <div className="container mx-auto">
@@ -92,7 +130,7 @@ const Education = () => {
         <div className="max-w-2xl mx-auto relative">
           <div className="absolute left-0 top-0 bottom-0 w-px bg-highlight/30" />
           
-          {educationData.map((item, index) => (
+          {educationItems.map((item, index) => (
             <TimelineItem key={item.id} item={item} index={index} />
           ))}
 
@@ -103,13 +141,110 @@ const Education = () => {
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            <button className="glass-card hover:bg-dark-300/50 transition-colors px-6 py-3 rounded-full text-highlight">
+            <Button 
+              variant="outline" 
+              className="glass-card hover:bg-dark-300/50 transition-colors px-6 py-3 rounded-full text-highlight"
+              onClick={() => setIsDialogOpen(true)}
+            >
               <Plus size={18} className="inline mr-2" />
               Add Education
-            </button>
+            </Button>
           </motion.div>
         </div>
       </div>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="bg-dark-200 border-highlight/20 text-white">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">Add Education</DialogTitle>
+          </DialogHeader>
+          
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="degree"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Degree</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Enter your degree" 
+                        className="bg-dark-300/50" 
+                        {...field} 
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="institution"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Institution</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Enter institution name" 
+                        className="bg-dark-300/50" 
+                        {...field} 
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="date"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Date</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="e.g., 2020 - 2024" 
+                        className="bg-dark-300/50" 
+                        {...field} 
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Describe your education" 
+                        className="bg-dark-300/50" 
+                        {...field} 
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex justify-end gap-2 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit">
+                  Add Education
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };
