@@ -4,54 +4,19 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 266 57% 57%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 191 75% 62%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-    --radius: 0.5rem;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border selection:bg-highlight/20;
-  }
-  
   body {
-    @apply bg-dark text-foreground antialiased;
+    @apply bg-dark bg-complex-gradient bg-[length:400%_400%] animate-background-shine;
+    background-attachment: fixed;
+    min-height: 100vh;
   }
 
-  html {
-    @apply scroll-smooth;
+  #root {
+    @apply bg-transparent;
   }
 }
 
 @layer utilities {
-  .section-padding {
-    @apply py-16 px-4 md:py-24 md:px-12 lg:px-24;
-  }
-  
-  .glass-card {
-    @apply backdrop-blur-md bg-white/5 border border-white/10 shadow-lg;
-  }
-  
-  .text-gradient {
-    @apply bg-gradient-to-br from-highlight to-highlight-secondary bg-clip-text text-transparent;
+  .bg-creative-gradient {
+    @apply bg-gradient-to-br from-dark-100 via-dark to-highlight/20 backdrop-blur-xl;
   }
 }
