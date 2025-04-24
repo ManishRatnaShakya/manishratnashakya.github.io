@@ -85,7 +85,7 @@ export default {
             theme('colors.dark.100'), 
             theme('colors.dark.200'), 
             theme('colors.highlight'), 
-            theme('colors.highlight-secondary')
+            theme('colors.highlight.secondary')
           )
         `,
         'animated-gradient': `
@@ -94,7 +94,7 @@ export default {
             theme('colors.dark.100'),
             theme('colors.dark.200'), 
             theme('colors.highlight'), 
-            theme('colors.highlight-secondary')
+            theme('colors.highlight.secondary')
           )
         `
       },
