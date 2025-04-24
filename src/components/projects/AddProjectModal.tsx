@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -47,11 +46,15 @@ const AddProjectModal = ({
 
   const onSubmit = async (values: ProjectFormValues) => {
     try {
+      const techArray = typeof values.technologies === 'string' 
+        ? values.technologies.split(',').map(t => t.trim()).filter(t => t !== '') 
+        : values.technologies;
+      
       const projectData = {
         title: values.title,
         description: values.description,
         image_url: values.image_url || null,
-        technologies: values.technologies, // This is now automatically transformed by zod
+        technologies: techArray,
         github_url: values.github_url || null,
         live_url: values.live_url || null,
       };

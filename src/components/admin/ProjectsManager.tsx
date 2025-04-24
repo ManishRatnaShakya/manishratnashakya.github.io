@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -82,11 +81,15 @@ const ProjectsManager = () => {
 
   const onSubmit = async (values: ProjectFormValues) => {
     try {
+      const techArray = typeof values.technologies === 'string' 
+        ? values.technologies.split(',').map(t => t.trim()).filter(t => t !== '') 
+        : values.technologies;
+      
       const projectData = {
         title: values.title,
         description: values.description,
         image_url: values.image_url || null,
-        technologies: values.technologies, // This is now automatically transformed by zod
+        technologies: techArray,
         github_url: values.github_url || null,
         live_url: values.live_url || null,
       };
@@ -120,12 +123,16 @@ const ProjectsManager = () => {
   const handleEdit = (project: Project) => {
     setFormAction("edit");
     setEditingId(project.id);
+    
+    const techString = Array.isArray(project.technologies) 
+      ? project.technologies.join(", ")
+      : "";
+    
     form.reset({
       title: project.title,
       description: project.description,
       image_url: project.image_url || "",
-      // Convert the array back to a comma-separated string for the form
-      technologies: project.technologies.join(", "),
+      technologies: techString,
       github_url: project.github_url || "",
       live_url: project.live_url || "",
     });
