@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,8 @@ const projectSchema = z.object({
   title: z.string().min(3, { message: "Title must be at least 3 characters" }),
   description: z.string().min(10, { message: "Description must be at least 10 characters" }),
   image_url: z.string().url({ message: "Please enter a valid URL" }).optional().or(z.literal("")),
-  technologies: z.string().transform((val) => val.split(",").map((t) => t.trim())),
+  technologies: z.string()
+    .transform((val) => val.split(",").map((t) => t.trim()).filter(t => t !== "")),
   github_url: z.string().url({ message: "Please enter a valid URL" }).optional().or(z.literal("")),
   live_url: z.string().url({ message: "Please enter a valid URL" }).optional().or(z.literal("")),
 });
@@ -49,7 +51,7 @@ const AddProjectModal = ({
         title: values.title,
         description: values.description,
         image_url: values.image_url || null,
-        technologies: values.technologies,
+        technologies: values.technologies, // This is now automatically transformed by zod
         github_url: values.github_url || null,
         live_url: values.live_url || null,
       };

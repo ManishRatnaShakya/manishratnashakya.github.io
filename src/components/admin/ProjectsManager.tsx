@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -19,7 +20,8 @@ const projectSchema = z.object({
   title: z.string().min(3, { message: "Title must be at least 3 characters" }),
   description: z.string().min(10, { message: "Description must be at least 10 characters" }),
   image_url: z.string().url({ message: "Please enter a valid URL" }).optional().or(z.literal("")),
-  technologies: z.string().transform((val) => val.split(",").map((t) => t.trim())),
+  technologies: z.string()
+    .transform((val) => val.split(",").map((t) => t.trim()).filter(t => t !== "")),
   github_url: z.string().url({ message: "Please enter a valid URL" }).optional().or(z.literal("")),
   live_url: z.string().url({ message: "Please enter a valid URL" }).optional().or(z.literal("")),
 });
@@ -84,7 +86,7 @@ const ProjectsManager = () => {
         title: values.title,
         description: values.description,
         image_url: values.image_url || null,
-        technologies: values.technologies,
+        technologies: values.technologies, // This is now automatically transformed by zod
         github_url: values.github_url || null,
         live_url: values.live_url || null,
       };
@@ -122,6 +124,7 @@ const ProjectsManager = () => {
       title: project.title,
       description: project.description,
       image_url: project.image_url || "",
+      // Convert the array back to a comma-separated string for the form
       technologies: project.technologies.join(", "),
       github_url: project.github_url || "",
       live_url: project.live_url || "",
