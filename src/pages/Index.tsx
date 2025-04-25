@@ -12,7 +12,8 @@ import Footer from "@/components/layout/Footer";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-dark text-white overflow-x-hidden">
+    <div className="min-h-screen bg-dark text-white overflow-x-hidden bg-complex-gradient bg-[length:400%_400%] animate-background-shine">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.3),rgba(255,255,255,0))]" />
       <Navbar />
       <Hero />
       <About />

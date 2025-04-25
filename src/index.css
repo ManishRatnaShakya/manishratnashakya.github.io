@@ -13,10 +13,35 @@
   #root {
     @apply bg-transparent;
   }
+
+  .glass-card {
+    @apply backdrop-blur-xl bg-white/5 border border-white/10 rounded-xl transition-all duration-300 hover:bg-white/10;
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-highlight via-highlight-secondary to-highlight bg-clip-text text-transparent bg-[length:200%_auto] animate-text-shine;
+  }
+
+  .section-padding {
+    @apply py-20 px-4 md:px-6 lg:px-8;
+  }
 }
 
 @layer utilities {
   .bg-creative-gradient {
     @apply bg-gradient-to-br from-dark-100 via-dark to-highlight/20 backdrop-blur-xl;
+  }
+  
+  .animate-text-shine {
+    animation: text-shine 3s linear infinite;
+  }
+  
+  @keyframes text-shine {
+    from {
+      background-position: 0% center;
+    }
+    to {
+      background-position: 200% center;
+    }
   }
 }
