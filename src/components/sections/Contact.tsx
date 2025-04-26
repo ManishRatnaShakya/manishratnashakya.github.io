@@ -1,17 +1,52 @@
-
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, Phone, MapPin, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const Contact = () => {
-  const handleSubmit = (e: React.FormEvent) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [id]: value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // This would normally connect to an email service or backend
-    toast.success("Message sent successfully! I'll get back to you soon.");
+    
+    try {
+      const response = await supabase.functions.invoke('send-contact-email', {
+        body: JSON.stringify(formData)
+      });
+
+      if (response.error) {
+        throw response.error;
+      }
+
+      toast.success("Message sent successfully! I'll get back to you soon.");
+      // Reset form after successful submission
+      setFormData({
+        name: '',
+        email: '',
+        subject: '',
+        message: ''
+      });
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast.error("Failed to send message. Please try again.");
+    }
   };
 
   const contactInfo = [
@@ -122,6 +157,8 @@ const Contact = () => {
                     id="name"
                     placeholder="John Smith"
                     className="bg-dark-300 border-dark-100"
+                    value={formData.name}
+                    onChange={handleChange}
                     required
                   />
                 </div>
@@ -134,6 +171,8 @@ const Contact = () => {
                     type="email"
                     placeholder="john@example.com"
                     className="bg-dark-300 border-dark-100"
+                    value={formData.email}
+                    onChange={handleChange}
                     required
                   />
                 </div>
@@ -146,6 +185,8 @@ const Contact = () => {
                   id="subject"
                   placeholder="Project Inquiry"
                   className="bg-dark-300 border-dark-100"
+                  value={formData.subject}
+                  onChange={handleChange}
                   required
                 />
               </div>
@@ -157,6 +198,8 @@ const Contact = () => {
                   id="message"
                   placeholder="Tell me about your project or inquiry..."
                   className="bg-dark-300 border-dark-100 min-h-[120px]"
+                  value={formData.message}
+                  onChange={handleChange}
                   required
                 />
               </div>
