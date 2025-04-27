@@ -27,7 +27,7 @@ serve(async (req) => {
 
     const emailResponse = await resend.emails.send({
       from: 'Portfolio Contact <onboarding@resend.dev>',
-      to: ['john.doe@example.com'], // Replace with your email
+      to: [Deno.env.get('CONTACT_FORM_RECIPIENT_EMAIL') || 'your-email@example.com'], 
       subject: `New Contact Form Submission: ${subject}`,
       html: `
         <h1>New Message from ${name}</h1>
