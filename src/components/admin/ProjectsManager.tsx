@@ -1,41 +1,17 @@
 
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { PlusCircle, Pencil, Trash2, Save, X, Loader2 } from "lucide-react";
+import { PlusCircle, Pencil, Trash2, Loader2 } from "lucide-react";
 import { Project } from "@/types/database";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-
-const projectSchema = z.object({
-  title: z.string().min(3, { message: "Title must be at least 3 characters" }),
-  description: z.string().min(10, { message: "Description must be at least 10 characters" }),
-  image_url: z.string().url({ message: "Please enter a valid URL" }).optional().or(z.literal("")),
-  technologies: z.string()
-    .transform((val) => val ? val.split(",").map((t) => t.trim()).filter(t => t !== "") : []),
-  github_url: z.string().url({ message: "Please enter a valid URL" }).optional().or(z.literal("")),
-  live_url: z.string().url({ message: "Please enter a valid URL" }).optional().or(z.literal("")),
-});
-
-// Define a specific type for the form values that includes technologies as string
-type ProjectFormValues = {
-  title: string;
-  description: string;
-  image_url: string;
-  technologies: string;  // This remains a string for form input
-  github_url: string;
-  live_url: string;
-};
+import ProjectForm, { ProjectFormValues } from "@/components/projects/ProjectForm";
+import { transformProjectFormData } from "@/utils/projectUtils";
 
 const ProjectsManager = () => {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -44,18 +20,6 @@ const ProjectsManager = () => {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const navigate = useNavigate();
-
-  const form = useForm<ProjectFormValues>({
-    resolver: zodResolver(projectSchema),
-    defaultValues: {
-      title: "",
-      description: "",
-      image_url: "",
-      technologies: "",
-      github_url: "",
-      live_url: "",
-    },
-  });
 
   useEffect(() => {
     fetchProjects();
@@ -78,51 +42,6 @@ const ProjectsManager = () => {
     }
   };
 
-  const resetForm = () => {
-    form.reset({
-      title: "",
-      description: "",
-      image_url: "",
-      technologies: "",
-      github_url: "",
-      live_url: "",
-    });
-  };
-
-  const onSubmit = async (values: ProjectFormValues) => {
-    try {
-      const techArray = values.technologies 
-        ? values.technologies.split(',').map(t => t.trim()).filter(t => t !== '') 
-        : [];
-      
-      const projectData = {
-        title: values.title,
-        description: values.description,
-        image_url: values.image_url || null,
-        technologies: techArray,
-        github_url: values.github_url || null,
-        live_url: values.live_url || null,
-      };
-      
-      if (editingId) {
-        const { error } = await supabase
-          .from("projects")
-          .update(projectData)
-          .eq("id", editingId);
-          
-        if (error) throw error;
-        toast.success("Project updated successfully");
-        setEditingId(null);
-      }
-      
-      resetForm();
-      setIsEditing(false);
-      fetchProjects();
-    } catch (error: any) {
-      toast.error(error.message || "Failed to save project");
-    }
-  };
-
   const handleEdit = (project: Project) => {
     setEditingId(project.id);
     
@@ -130,14 +49,6 @@ const ProjectsManager = () => {
       ? project.technologies.join(", ")
       : "";
     
-    form.reset({
-      title: project.title,
-      description: project.description,
-      image_url: project.image_url || "",
-      technologies: techString,
-      github_url: project.github_url || "",
-      live_url: project.live_url || "",
-    });
     setIsEditing(true);
   };
 
@@ -155,6 +66,27 @@ const ProjectsManager = () => {
       toast.error(error.message || "Failed to delete project");
     } finally {
       setDeleteId(null);
+    }
+  };
+
+  const handleSubmitEdit = async (values: ProjectFormValues) => {
+    try {
+      if (!editingId) return;
+      
+      const projectData = transformProjectFormData(values);
+      
+      const { error } = await supabase
+        .from("projects")
+        .update(projectData)
+        .eq("id", editingId);
+          
+      if (error) throw error;
+      toast.success("Project updated successfully");
+      setEditingId(null);
+      setIsEditing(false);
+      fetchProjects();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to save project");
     }
   };
 
@@ -255,117 +187,21 @@ const ProjectsManager = () => {
             <SheetTitle className="text-xl">Edit Project</SheetTitle>
           </SheetHeader>
           <div className="py-4">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Title</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Project title" {...field} className="bg-dark-300/50" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="Project description" 
-                          rows={4}
-                          {...field} 
-                          className="bg-dark-300/50" 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="image_url"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Image URL</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://example.com/image.jpg" {...field} className="bg-dark-300/50" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="technologies"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Technologies (comma separated)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="React, Node.js, TypeScript" {...field} className="bg-dark-300/50" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="github_url"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>GitHub URL</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://github.com/username/repo" {...field} className="bg-dark-300/50" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="live_url"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Live URL</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://example.com" {...field} className="bg-dark-300/50" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <div className="flex space-x-2 pt-4">
-                  <Button 
-                    type="submit" 
-                    className="flex-1 bg-highlight hover:bg-highlight/90"
-                  >
-                    <Save className="mr-2 h-4 w-4" />
-                    Save Project
-                  </Button>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => setIsEditing(false)}
-                    className="border-gray-600"
-                  >
-                    <X className="mr-2 h-4 w-4" />
-                    Cancel
-                  </Button>
-                </div>
-              </form>
-            </Form>
+            {editingId && (
+              <ProjectForm
+                defaultValues={{
+                  title: projects.find(p => p.id === editingId)?.title || "",
+                  description: projects.find(p => p.id === editingId)?.description || "",
+                  image_url: projects.find(p => p.id === editingId)?.image_url || "",
+                  technologies: projects.find(p => p.id === editingId)?.technologies.join(", ") || "",
+                  github_url: projects.find(p => p.id === editingId)?.github_url || "",
+                  live_url: projects.find(p => p.id === editingId)?.live_url || "",
+                }}
+                onSubmit={handleSubmitEdit}
+                onCancel={() => setIsEditing(false)}
+                submitLabel="Save Changes"
+              />
+            )}
           </div>
         </SheetContent>
       </Sheet>
