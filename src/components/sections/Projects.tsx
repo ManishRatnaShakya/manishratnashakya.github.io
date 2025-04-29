@@ -1,20 +1,23 @@
+
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ExternalLink, Plus } from "lucide-react";
+import { ExternalLink, Plus, Github } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import AddProjectModal from "@/components/projects/AddProjectModal";
 import { Project } from "@/types/database";
+import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 const ProjectCard = ({ project }: { project: Project }) => {
   return (
     <motion.div
-      className="glass-card rounded-xl overflow-hidden group cursor-pointer"
+      className="glass-card rounded-xl overflow-hidden group cursor-pointer h-full"
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.5, delay: 0.1 }}
       viewport={{ once: true }}
     >
       <Link to={`/project/${project.id}`} className="block h-full">
@@ -34,20 +37,32 @@ const ProjectCard = ({ project }: { project: Project }) => {
             <div>
               <h3 className="text-xl font-semibold">{project.title}</h3>
             </div>
-            {project.github_url && (
-              <a 
-                href={project.github_url} 
-                className="text-highlight hover:text-highlight-secondary transition-colors"
-                onClick={e => e.stopPropagation()}
-                target="_blank" rel="noopener noreferrer"
-              >
-                <ExternalLink size={20} />
-              </a>
-            )}
+            <div className="flex gap-2">
+              {project.github_url && (
+                <a 
+                  href={project.github_url} 
+                  className="text-highlight hover:text-highlight-secondary transition-colors"
+                  onClick={e => e.stopPropagation()}
+                  target="_blank" rel="noopener noreferrer"
+                >
+                  <Github size={20} />
+                </a>
+              )}
+              {project.live_url && (
+                <a 
+                  href={project.live_url} 
+                  className="text-highlight hover:text-highlight-secondary transition-colors"
+                  onClick={e => e.stopPropagation()}
+                  target="_blank" rel="noopener noreferrer"
+                >
+                  <ExternalLink size={20} />
+                </a>
+              )}
+            </div>
           </div>
         </div>
         <div className="p-5">
-          <p className="text-gray-300 mb-4">{project.description}</p>
+          <p className="text-gray-300 mb-4 line-clamp-2">{project.description}</p>
           <div className="flex flex-wrap gap-2">
             {project.technologies?.map((tag, index) => (
               <span
@@ -66,28 +81,36 @@ const ProjectCard = ({ project }: { project: Project }) => {
 
 const Projects = () => {
   const { user } = useAuth();
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
   const [showAddModal, setShowAddModal] = useState(false);
 
+  const { data: projects, isLoading, error, refetch } = useQuery({
+    queryKey: ['projects'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("projects")
+        .select("*")
+        .order("created_at", { ascending: false });
+      
+      if (error) throw error;
+      return data as Project[];
+    }
+  });
+
   useEffect(() => {
-    fetchProjects();
-  }, []);
-
-  const fetchProjects = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("projects")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (data) setProjects(data as Project[]);
-    setLoading(false);
-  };
+    if (error) {
+      console.error("Error fetching projects:", error);
+      toast.error("Failed to load projects");
+    }
+  }, [error]);
 
   const handleProjectAdded = () => {
     setShowAddModal(false);
-    fetchProjects();
+    refetch();
+  };
+
+  const handleViewAllProjects = () => {
+    navigate("/admin");
   };
 
   return (
@@ -114,33 +137,65 @@ const Projects = () => {
             Browse through my recent projects, showcasing a diverse range of skills and expertise
           </p>
         </div>
-        {loading ? (
+        {isLoading ? (
           <div className="flex justify-center py-12">
             <span className="text-highlight text-lg animate-pulse">Loading projects...</span>
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 mb-12">
-              {projects.map((project) => (
-                <ProjectCard key={project.id} project={project} />
-              ))}
-              {user && (
-                <motion.div
-                  className="glass-card rounded-xl overflow-hidden flex flex-col items-center justify-center p-8 text-center h-full min-h-[300px]"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
-                  viewport={{ once: true }}
-                >
-                  <Plus size={48} className="text-highlight/50 mb-4" />
-                  <h3 className="text-xl font-semibold mb-2">Add New Project</h3>
-                  <p className="text-gray-400 mb-6">Showcase your latest work</p>
-                  <Button className="bg-highlight hover:bg-highlight/90 rounded-full px-6" onClick={() => setShowAddModal(true)}>
-                    Add Project
+            {(!projects || projects.length === 0) && !user && (
+              <div className="text-center py-16">
+                <p className="text-gray-400 mb-6">No projects available at the moment</p>
+                {user && (
+                  <Button 
+                    onClick={() => setShowAddModal(true)} 
+                    className="bg-highlight hover:bg-highlight/90 rounded-full px-6"
+                  >
+                    <Plus size={16} className="mr-2" /> Add Your First Project
                   </Button>
-                </motion.div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
+            
+            {(projects && projects.length > 0) || user ? (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 mb-12">
+                  {projects?.map((project) => (
+                    <ProjectCard key={project.id} project={project} />
+                  ))}
+                  
+                  {user && (
+                    <motion.div
+                      className="glass-card rounded-xl overflow-hidden flex flex-col items-center justify-center p-8 text-center h-full min-h-[300px]"
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 0.2 }}
+                      viewport={{ once: true }}
+                    >
+                      <Plus size={48} className="text-highlight/50 mb-4" />
+                      <h3 className="text-xl font-semibold mb-2">Add New Project</h3>
+                      <p className="text-gray-400 mb-6">Showcase your latest work</p>
+                      <Button className="bg-highlight hover:bg-highlight/90 rounded-full px-6" onClick={() => setShowAddModal(true)}>
+                        Add Project
+                      </Button>
+                    </motion.div>
+                  )}
+                </div>
+                
+                {user && projects && projects.length > 0 && (
+                  <div className="flex justify-center">
+                    <Button 
+                      variant="outline" 
+                      onClick={handleViewAllProjects}
+                      className="border-highlight text-highlight hover:bg-highlight/10"
+                    >
+                      Manage All Projects
+                    </Button>
+                  </div>
+                )}
+              </>
+            ) : null}
+            
             <AddProjectModal 
               open={!!user && showAddModal}
               onOpenChange={setShowAddModal}
