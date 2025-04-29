@@ -1,11 +1,13 @@
 
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   body {
-    @apply bg-dark bg-complex-gradient bg-[length:400%_400%] animate-background-shine;
+    @apply bg-dark bg-[length:400%_400%] animate-background-shine;
+    background-image: linear-gradient(-45deg, theme('colors.dark.100'), theme('colors.dark.200'), theme('colors.highlight'), theme('colors.highlight.secondary'));
     background-attachment: fixed;
     min-height: 100vh;
   }
@@ -28,6 +30,10 @@
 }
 
 @layer utilities {
+  .bg-complex-gradient {
+    background-image: linear-gradient(-45deg, theme('colors.dark.100'), theme('colors.dark.200'), theme('colors.highlight'), theme('colors.highlight.secondary'));
+  }
+  
   .bg-creative-gradient {
     @apply bg-gradient-to-br from-dark-100 via-dark to-highlight/20 backdrop-blur-xl;
   }
@@ -45,3 +51,4 @@
     }
   }
 }
+
