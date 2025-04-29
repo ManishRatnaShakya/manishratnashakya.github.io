@@ -1,12 +1,11 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { ExternalLink, Plus, Github } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import AddProjectModal from "@/components/projects/AddProjectModal";
 import { Project } from "@/types/database";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -82,7 +81,6 @@ const ProjectCard = ({ project }: { project: Project }) => {
 const Projects = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [showAddModal, setShowAddModal] = useState(false);
 
   const { data: projects, isLoading, error, refetch } = useQuery({
     queryKey: ['projects'],
@@ -97,17 +95,12 @@ const Projects = () => {
     }
   });
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (error) {
       console.error("Error fetching projects:", error);
       toast.error("Failed to load projects");
     }
   }, [error]);
-
-  const handleProjectAdded = () => {
-    setShowAddModal(false);
-    refetch();
-  };
 
   const handleViewAllProjects = () => {
     navigate("/admin");
@@ -148,7 +141,7 @@ const Projects = () => {
                 <p className="text-gray-400 mb-6">No projects available at the moment</p>
                 {user && (
                   <Button 
-                    onClick={() => setShowAddModal(true)} 
+                    onClick={() => navigate("/admin/add-project")} 
                     className="bg-highlight hover:bg-highlight/90 rounded-full px-6"
                   >
                     <Plus size={16} className="mr-2" /> Add Your First Project
@@ -175,7 +168,10 @@ const Projects = () => {
                       <Plus size={48} className="text-highlight/50 mb-4" />
                       <h3 className="text-xl font-semibold mb-2">Add New Project</h3>
                       <p className="text-gray-400 mb-6">Showcase your latest work</p>
-                      <Button className="bg-highlight hover:bg-highlight/90 rounded-full px-6" onClick={() => setShowAddModal(true)}>
+                      <Button 
+                        className="bg-highlight hover:bg-highlight/90 rounded-full px-6" 
+                        onClick={() => navigate("/admin/add-project")}
+                      >
                         Add Project
                       </Button>
                     </motion.div>
@@ -195,12 +191,6 @@ const Projects = () => {
                 )}
               </>
             ) : null}
-            
-            <AddProjectModal 
-              open={!!user && showAddModal}
-              onOpenChange={setShowAddModal}
-              onProjectAdded={handleProjectAdded}
-            />
           </>
         )}
       </div>

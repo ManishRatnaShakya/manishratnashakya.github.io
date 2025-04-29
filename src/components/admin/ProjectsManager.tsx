@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -13,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 const projectSchema = z.object({
@@ -39,10 +40,10 @@ type ProjectFormValues = {
 const ProjectsManager = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [formAction, setFormAction] = useState<"add" | "edit">("add");
+  const [isEditing, setIsEditing] = useState(false);
+  const navigate = useNavigate();
 
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectSchema),
@@ -103,14 +104,7 @@ const ProjectsManager = () => {
         live_url: values.live_url || null,
       };
       
-      if (formAction === "add") {
-        const { error } = await supabase
-          .from("projects")
-          .insert([projectData]);
-          
-        if (error) throw error;
-        toast.success("Project added successfully");
-      } else if (formAction === "edit" && editingId) {
+      if (editingId) {
         const { error } = await supabase
           .from("projects")
           .update(projectData)
@@ -122,7 +116,7 @@ const ProjectsManager = () => {
       }
       
       resetForm();
-      setIsAdding(false);
+      setIsEditing(false);
       fetchProjects();
     } catch (error: any) {
       toast.error(error.message || "Failed to save project");
@@ -130,7 +124,6 @@ const ProjectsManager = () => {
   };
 
   const handleEdit = (project: Project) => {
-    setFormAction("edit");
     setEditingId(project.id);
     
     const techString = Array.isArray(project.technologies) 
@@ -145,7 +138,7 @@ const ProjectsManager = () => {
       github_url: project.github_url || "",
       live_url: project.live_url || "",
     });
-    setIsAdding(true);
+    setIsEditing(true);
   };
 
   const handleDelete = async (id: string) => {
@@ -165,144 +158,17 @@ const ProjectsManager = () => {
     }
   };
 
-  const handleAddNew = () => {
-    setFormAction("add");
-    resetForm();
-    setIsAdding(true);
-  };
-
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Manage Projects</h2>
-        <Sheet open={isAdding} onOpenChange={setIsAdding}>
-          <SheetTrigger asChild>
-            <Button onClick={handleAddNew} className="bg-highlight hover:bg-highlight/90">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Add New Project
-            </Button>
-          </SheetTrigger>
-          <SheetContent className="overflow-y-auto w-full md:max-w-md bg-dark-200/95 border-highlight/20">
-            <SheetHeader>
-              <SheetTitle className="text-xl">
-                {formAction === "add" ? "Add New Project" : "Edit Project"}
-              </SheetTitle>
-            </SheetHeader>
-            <div className="py-4">
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="title"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Title</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Project title" {...field} className="bg-dark-300/50" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Description</FormLabel>
-                        <FormControl>
-                          <Textarea 
-                            placeholder="Project description" 
-                            rows={4}
-                            {...field} 
-                            className="bg-dark-300/50" 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="image_url"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Image URL</FormLabel>
-                        <FormControl>
-                          <Input placeholder="https://example.com/image.jpg" {...field} className="bg-dark-300/50" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="technologies"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Technologies (comma separated)</FormLabel>
-                        <FormControl>
-                          <Input placeholder="React, Node.js, TypeScript" {...field} className="bg-dark-300/50" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="github_url"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>GitHub URL</FormLabel>
-                        <FormControl>
-                          <Input placeholder="https://github.com/username/repo" {...field} className="bg-dark-300/50" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="live_url"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Live URL</FormLabel>
-                        <FormControl>
-                          <Input placeholder="https://example.com" {...field} className="bg-dark-300/50" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <div className="flex space-x-2 pt-4">
-                    <Button 
-                      type="submit" 
-                      className="flex-1 bg-highlight hover:bg-highlight/90"
-                    >
-                      <Save className="mr-2 h-4 w-4" />
-                      Save Project
-                    </Button>
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      onClick={() => setIsAdding(false)}
-                      className="border-gray-600"
-                    >
-                      <X className="mr-2 h-4 w-4" />
-                      Cancel
-                    </Button>
-                  </div>
-                </form>
-              </Form>
-            </div>
-          </SheetContent>
-        </Sheet>
+        <Button 
+          onClick={() => navigate("/admin/add-project")} 
+          className="bg-highlight hover:bg-highlight/90"
+        >
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Add New Project
+        </Button>
       </div>
 
       {loading ? (
@@ -382,6 +248,127 @@ const ProjectsManager = () => {
           ))}
         </div>
       )}
+
+      <Sheet open={isEditing} onOpenChange={setIsEditing}>
+        <SheetContent className="overflow-y-auto w-full md:max-w-md bg-dark-200/95 border-highlight/20">
+          <SheetHeader>
+            <SheetTitle className="text-xl">Edit Project</SheetTitle>
+          </SheetHeader>
+          <div className="py-4">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Title</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Project title" {...field} className="bg-dark-300/50" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Project description" 
+                          rows={4}
+                          {...field} 
+                          className="bg-dark-300/50" 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="image_url"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Image URL</FormLabel>
+                      <FormControl>
+                        <Input placeholder="https://example.com/image.jpg" {...field} className="bg-dark-300/50" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="technologies"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Technologies (comma separated)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="React, Node.js, TypeScript" {...field} className="bg-dark-300/50" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="github_url"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>GitHub URL</FormLabel>
+                      <FormControl>
+                        <Input placeholder="https://github.com/username/repo" {...field} className="bg-dark-300/50" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="live_url"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Live URL</FormLabel>
+                      <FormControl>
+                        <Input placeholder="https://example.com" {...field} className="bg-dark-300/50" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <div className="flex space-x-2 pt-4">
+                  <Button 
+                    type="submit" 
+                    className="flex-1 bg-highlight hover:bg-highlight/90"
+                  >
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Project
+                  </Button>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => setIsEditing(false)}
+                    className="border-gray-600"
+                  >
+                    <X className="mr-2 h-4 w-4" />
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
