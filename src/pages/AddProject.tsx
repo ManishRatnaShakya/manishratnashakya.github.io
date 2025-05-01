@@ -19,6 +19,8 @@ const AddProject = () => {
     try {
       const projectData = transformProjectFormData(values);
       
+      console.log("Submitting project data:", projectData);
+      
       const { error } = await supabase
         .from("projects")
         .insert([projectData]);

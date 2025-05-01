@@ -22,6 +22,8 @@ const AddProjectModal = ({
     try {
       const projectData = transformProjectFormData(values);
       
+      console.log("Submitting project data:", projectData);
+      
       const { error } = await supabase
         .from("projects")
         .insert([projectData]);
@@ -31,6 +33,7 @@ const AddProjectModal = ({
       onOpenChange(false);
       onProjectAdded();
     } catch (error: any) {
+      console.error("Error adding project:", error);
       toast.error(error.message || "Failed to add project");
     }
   };

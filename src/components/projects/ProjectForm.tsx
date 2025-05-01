@@ -14,17 +14,18 @@ export const projectSchema = z.object({
   description: z.string().min(10, { message: "Description must be at least 10 characters" }),
   image_url: z.string().url({ message: "Please enter a valid URL" }).optional().or(z.literal("")),
   technologies: z.string()
-    .transform((val) => val ? val.split(",").map((t) => t.trim()).filter(t => t !== "") : []),
+    .transform((val) => val ? val.split(",").map((t) => t.trim()).filter(t => t !== "") : [])
+    .or(z.array(z.string())),
   github_url: z.string().url({ message: "Please enter a valid URL" }).optional().or(z.literal("")),
   live_url: z.string().url({ message: "Please enter a valid URL" }).optional().or(z.literal("")),
 });
 
-// Define a specific type for the form values that includes technologies as string
+// Define a specific type for the form values that includes technologies as either string or array
 export type ProjectFormValues = {
   title: string;
   description: string;
   image_url: string;
-  technologies: string;  // This remains a string for form input
+  technologies: string | string[];  // Can be either string for input or array after processing
   github_url: string;
   live_url: string;
 };
