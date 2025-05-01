@@ -28,6 +28,7 @@ const AddProjectModal = ({
         
       if (error) throw error;
       toast.success("Project added successfully!");
+      onOpenChange(false);
       onProjectAdded();
     } catch (error: any) {
       toast.error(error.message || "Failed to add project");

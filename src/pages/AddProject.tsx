@@ -27,6 +27,7 @@ const AddProject = () => {
       toast.success("Project added successfully!");
       navigate("/admin");
     } catch (error: any) {
+      console.error("Error adding project:", error);
       toast.error(error.message || "Failed to add project");
     } finally {
       setIsSubmitting(false);
