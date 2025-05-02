@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -62,7 +63,7 @@ export default {
           border: 'hsl(var(--sidebar-border))',
           ring: 'hsl(var(--sidebar-ring))'
         },
-        // Portfolio specific colors
+        // Enhanced Portfolio colors
         dark: {
           DEFAULT: "#121212",
           100: "#1A1F2C",
@@ -71,8 +72,10 @@ export default {
           400: "#333333"
         },
         highlight: {
-          DEFAULT: "#6E56CF",
-          secondary: "#54C8E8"
+          DEFAULT: "#8B5CF6", // More vibrant purple
+          secondary: "#06B6D4", // Bright cyan
+          tertiary: "#D946EF", // Vibrant pink
+          accent: "#F59E0B", // Amber for accents
         }
       },
       backgroundImage: {
@@ -84,6 +87,14 @@ export default {
             theme('colors.dark.100'), 
             theme('colors.dark.200'), 
             theme('colors.highlight'), 
+            theme('colors.highlight.secondary')
+          )
+        `,
+        'vibrant-gradient': `
+          linear-gradient(
+            -45deg, 
+            theme('colors.highlight.DEFAULT'), 
+            theme('colors.highlight.tertiary'), 
             theme('colors.highlight.secondary')
           )
         `,

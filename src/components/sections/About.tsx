@@ -19,14 +19,14 @@ const About = () => {
   ];
 
   return (
-    <section id="about" className="section-padding bg-dark-200 relative overflow-hidden">
-      {/* Parallax background elements */}
+    <section id="about" className="section-padding bg-dark-200/50 relative overflow-hidden backdrop-blur-sm">
+      {/* Enhanced parallax background elements */}
       <motion.div 
-        className="absolute top-0 right-0 w-96 h-96 bg-highlight/10 rounded-full filter blur-3xl"
+        className="absolute top-0 right-0 w-96 h-96 bg-highlight/20 rounded-full filter blur-3xl"
         style={{ y: y1 }}
       />
       <motion.div 
-        className="absolute bottom-20 left-10 w-64 h-64 bg-highlight-secondary/10 rounded-full filter blur-3xl"
+        className="absolute bottom-20 left-10 w-64 h-64 bg-highlight-tertiary/20 rounded-full filter blur-3xl"
         style={{ y: y2 }}
       />
 
@@ -42,7 +42,7 @@ const About = () => {
             About <span className="text-gradient">Me</span>
           </motion.h2>
           <motion.div 
-            className="w-24 h-1 bg-highlight mx-auto mb-8"
+            className="w-24 h-1 bg-vibrant-gradient mx-auto mb-8 rounded-full"
             initial={{ width: 0 }}
             whileInView={{ width: 96 }}
             transition={{ duration: 0.5 }}
@@ -57,10 +57,11 @@ const About = () => {
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
             style={{ opacity: opacity1 }}
+            className="glow-effect"
           >
             <div className="glass-card p-1 rounded-lg">
-              <div className="aspect-square rounded-lg bg-gradient-to-br from-highlight/20 to-highlight-secondary/20 overflow-hidden">
-                <div className="w-full h-full bg-gray-800 flex items-center justify-center text-gray-600">
+              <div className="aspect-square rounded-lg bg-gradient-to-br from-highlight/30 to-highlight-secondary/30 overflow-hidden">
+                <div className="w-full h-full bg-dark-300 flex items-center justify-center text-gray-600">
                   <span className="text-lg">Profile Image</span>
                 </div>
               </div>
@@ -75,7 +76,7 @@ const About = () => {
             viewport={{ once: true }}
             style={{ opacity: opacity2 }}
           >
-            <h3 className="text-2xl font-bold">Professional Summary</h3>
+            <h3 className="text-2xl font-bold">Professional <span className="text-gradient-gold">Summary</span></h3>
             <p className="text-gray-300">
               I'm a creative professional with over 10 years of experience in digital design and development. 
               My passion lies in creating meaningful digital experiences that merge aesthetics with functionality.
@@ -89,11 +90,15 @@ const About = () => {
               {skills.map((skill, index) => (
                 <motion.div 
                   key={index} 
-                  className="glass-card p-4 rounded-lg flex items-start gap-3"
+                  className="glass-card p-4 rounded-lg flex items-start gap-3 hover:border-highlight/30 transition-all duration-300"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: 0.1 * index }}
                   viewport={{ once: true }}
+                  whileHover={{ 
+                    scale: 1.03,
+                    boxShadow: "0 10px 25px -5px rgba(139, 92, 246, 0.2)"
+                  }}
                 >
                   <div className="text-highlight mt-1">{skill.icon}</div>
                   <div>
