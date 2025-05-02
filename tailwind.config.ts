@@ -63,7 +63,7 @@ export default {
           border: 'hsl(var(--sidebar-border))',
           ring: 'hsl(var(--sidebar-ring))'
         },
-        // Enhanced Portfolio colors
+        // Enhanced Portfolio colors with DEFAULT explicitly set
         dark: {
           DEFAULT: "#121212",
           100: "#1A1F2C",
@@ -86,7 +86,7 @@ export default {
             -45deg, 
             theme('colors.dark.100'), 
             theme('colors.dark.200'), 
-            theme('colors.highlight'), 
+            theme('colors.highlight.DEFAULT'), 
             theme('colors.highlight.secondary')
           )
         `,
@@ -103,7 +103,7 @@ export default {
             -45deg, 
             theme('colors.dark.100'),
             theme('colors.dark.200'), 
-            theme('colors.highlight'), 
+            theme('colors.highlight.DEFAULT'), 
             theme('colors.highlight.secondary')
           )
         `
