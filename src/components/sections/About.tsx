@@ -1,9 +1,16 @@
 
 import React from "react";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { Code, Palette, Globe, Lightbulb } from "lucide-react";
 
 const About = () => {
+  // Add scroll animations
+  const { scrollY } = useScroll();
+  const y1 = useTransform(scrollY, [300, 900], [100, -100]);
+  const y2 = useTransform(scrollY, [300, 900], [50, -50]);
+  const opacity1 = useTransform(scrollY, [300, 400, 800, 900], [0, 1, 1, 0]);
+  const opacity2 = useTransform(scrollY, [400, 500, 800, 900], [0, 1, 1, 0]);
+
   const skills = [
     { name: "Development", icon: <Code size={24} />, description: "React, Node.js, TypeScript, Python" },
     { name: "Design", icon: <Palette size={24} />, description: "Figma, Adobe XD, Photoshop" },
@@ -12,8 +19,18 @@ const About = () => {
   ];
 
   return (
-    <section id="about" className="section-padding bg-dark-200">
-      <div className="container mx-auto">
+    <section id="about" className="section-padding bg-dark-200 relative overflow-hidden">
+      {/* Parallax background elements */}
+      <motion.div 
+        className="absolute top-0 right-0 w-96 h-96 bg-highlight/10 rounded-full filter blur-3xl"
+        style={{ y: y1 }}
+      />
+      <motion.div 
+        className="absolute bottom-20 left-10 w-64 h-64 bg-highlight-secondary/10 rounded-full filter blur-3xl"
+        style={{ y: y2 }}
+      />
+
+      <div className="container mx-auto relative z-10">
         <div className="text-center mb-16">
           <motion.h2 
             className="text-3xl md:text-4xl font-bold mb-4"
@@ -39,6 +56,7 @@ const About = () => {
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
+            style={{ opacity: opacity1 }}
           >
             <div className="glass-card p-1 rounded-lg">
               <div className="aspect-square rounded-lg bg-gradient-to-br from-highlight/20 to-highlight-secondary/20 overflow-hidden">
@@ -55,6 +73,7 @@ const About = () => {
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             viewport={{ once: true }}
+            style={{ opacity: opacity2 }}
           >
             <h3 className="text-2xl font-bold">Professional Summary</h3>
             <p className="text-gray-300">
@@ -68,16 +87,20 @@ const About = () => {
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
               {skills.map((skill, index) => (
-                <div 
+                <motion.div 
                   key={index} 
                   className="glass-card p-4 rounded-lg flex items-start gap-3"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.1 * index }}
+                  viewport={{ once: true }}
                 >
                   <div className="text-highlight mt-1">{skill.icon}</div>
                   <div>
                     <h4 className="font-semibold">{skill.name}</h4>
                     <p className="text-sm text-gray-400">{skill.description}</p>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </motion.div>

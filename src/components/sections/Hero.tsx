@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowDownCircle, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -8,6 +8,13 @@ const Hero = () => {
   const [displayText, setDisplayText] = useState("");
   const [roleIndex, setRoleIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
+  
+  // Add scroll animations
+  const { scrollY } = useScroll();
+  const y1 = useTransform(scrollY, [0, 500], [0, -150]);
+  const y2 = useTransform(scrollY, [0, 500], [0, -100]);
+  const y3 = useTransform(scrollY, [0, 500], [0, -50]);
+  const opacity = useTransform(scrollY, [0, 300], [1, 0]);
   
   const roles = [
     "Creative Director",
@@ -55,16 +62,16 @@ const Hero = () => {
       id="home" 
       className="relative min-h-screen flex items-center justify-center section-padding overflow-hidden"
     >
-      {/* Animated background elements */}
+      {/* Animated background elements with parallax */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         {/* Gradient overlay */}
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-dark-100/50 via-dark/80 to-dark-200/50" />
         
-        {/* Animated floating orbs */}
+        {/* Animated floating orbs with parallax */}
         <motion.div 
           className="absolute bottom-10 left-20 w-64 h-64 bg-highlight/20 rounded-full filter blur-3xl"
+          style={{ y: y1 }}
           animate={{
-            y: [0, -30, 0],
             opacity: [0.2, 0.3, 0.2],
             scale: [1, 1.1, 1]
           }}
@@ -77,8 +84,8 @@ const Hero = () => {
         
         <motion.div 
           className="absolute top-1/4 right-1/4 w-96 h-96 bg-highlight-secondary/20 rounded-full filter blur-3xl"
+          style={{ y: y2 }}
           animate={{
-            y: [0, 40, 0],
             opacity: [0.1, 0.2, 0.1],
             scale: [1, 1.2, 1]
           }}
@@ -92,6 +99,7 @@ const Hero = () => {
         
         <motion.div 
           className="absolute top-3/4 right-1/3 w-48 h-48 bg-purple-500/10 rounded-full filter blur-3xl"
+          style={{ y: y3 }}
           animate={{
             x: [0, 30, 0],
             opacity: [0.1, 0.2, 0.1],
@@ -107,6 +115,7 @@ const Hero = () => {
         
         <motion.div 
           className="absolute top-1/3 left-1/4 w-72 h-72 bg-blue-500/10 rounded-full filter blur-3xl"
+          style={{ y: y2 }}
           animate={{
             x: [0, -20, 0],
             opacity: [0.15, 0.25, 0.15],
@@ -121,8 +130,11 @@ const Hero = () => {
         />
       </div>
 
-      {/* Content */}
-      <div className="container mx-auto relative z-10">
+      {/* Content with parallax effect */}
+      <motion.div 
+        className="container mx-auto relative z-10"
+        style={{ opacity }}
+      >
         <div className="flex flex-col items-center text-center">
           <motion.h1 
             className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6"
@@ -176,7 +188,7 @@ const Hero = () => {
             </Button>
           </motion.div>
         </div>
-      </div>
+      </motion.div>
       
       {/* Scroll down indicator */}
       <motion.a 
@@ -188,6 +200,7 @@ const Hero = () => {
           repeat: Infinity,
           ease: "easeInOut"
         }}
+        style={{ opacity }}
       >
         <ArrowDownCircle />
       </motion.a>
