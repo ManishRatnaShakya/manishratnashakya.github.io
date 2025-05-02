@@ -24,15 +24,21 @@ const AdminHeader = () => {
     try {
       if (!user) return;
       
+      // Check if profiles table is accessible and has avatar_url column
       const { data, error } = await supabase
         .from('profiles')
-        .select('avatar_url')
+        .select('*')
         .eq('id', user.id)
         .single();
       
-      if (error) throw error;
-      if (data && data.avatar_url) {
-        setAvatarUrl(data.avatar_url);
+      if (error) {
+        console.error('Error fetching profile:', error);
+        return;
+      }
+      
+      // The avatar_url property will be checked safely
+      if (data && 'avatar_url' in data && data.avatar_url) {
+        setAvatarUrl(data.avatar_url as string);
       }
     } catch (error) {
       console.error('Error fetching avatar:', error);
@@ -52,30 +58,43 @@ const AdminHeader = () => {
       const fileName = `${user!.id}-${Math.random()}.${fileExt}`;
       const filePath = `avatars/${fileName}`;
       
-      // Upload the image to Supabase Storage
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file);
+      try {
+        // Upload the image to Supabase Storage
+        const { error: uploadError } = await supabase.storage
+          .from('avatars')
+          .upload(filePath, file);
+          
+        if (uploadError) throw uploadError;
         
-      if (uploadError) throw uploadError;
-      
-      // Get the public URL
-      const { data } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath);
-      
-      const avatarUrl = data.publicUrl;
-      
-      // Update the profile with the new avatar URL
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ avatar_url: avatarUrl })
-        .eq('id', user!.id);
+        // Get the public URL
+        const { data } = supabase.storage
+          .from('avatars')
+          .getPublicUrl(filePath);
         
-      if (updateError) throw updateError;
-      
-      setAvatarUrl(avatarUrl);
-      toast.success('Profile picture updated successfully!');
+        const avatarUrl = data.publicUrl;
+        
+        // Update the profile with the new avatar URL, carefully checking if column exists
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ 
+            // Use type assertion to handle the dynamic property
+            avatar_url: avatarUrl 
+          } as any)
+          .eq('id', user!.id);
+          
+        if (updateError) throw updateError;
+        
+        setAvatarUrl(avatarUrl);
+        toast.success('Profile picture updated successfully!');
+      } catch (uploadError: any) {
+        if (uploadError.message?.includes("column") && uploadError.message?.includes("avatar_url")) {
+          toast.error("The avatar_url column doesn't exist yet. Please run the necessary SQL migration first.");
+        } else if (uploadError.message?.includes("relation") && uploadError.message?.includes("avatars")) {
+          toast.error("The avatars storage bucket doesn't exist yet. Please create it first.");
+        } else {
+          toast.error(uploadError.message || 'Error uploading avatar');
+        }
+      }
     } catch (error: any) {
       toast.error(error.message || 'Error uploading avatar');
     } finally {
