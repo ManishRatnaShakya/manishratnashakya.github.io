@@ -11,10 +11,10 @@ const About = () => {
   // No opacity transforms for the profile image or summary
 
   const skills = [
-    { name: "Development", icon: <Code size={24} />, description: "React, Node.js, TypeScript, Python" },
-    { name: "Design", icon: <Palette size={24} />, description: "Figma, Adobe XD, Photoshop" },
-    { name: "Digital Marketing", icon: <Globe size={24} />, description: "SEO, Content Strategy, Analytics" },
-    { name: "Creative Direction", icon: <Lightbulb size={24} />, description: "Brand Strategy, Visual Identity" },
+    { name: "Development", icon: <Code size={24} />, description: "Angular, React, Node.js, TypeScript, Python" },
+    { name: "Design", icon: <Palette size={24} />, description: "Figma" },
+    { name: "Data", icon: <Globe size={24} />, description: "Machine learning, Data Analytics" },
+    { name: "Creative Direction", icon: <Lightbulb size={24} />, description: "Communication Skills, Customer Relationship" },
   ];
 
   return (
@@ -60,7 +60,7 @@ const About = () => {
             <div className="glass-card p-1 rounded-lg">
               <div className="aspect-square rounded-lg bg-gradient-to-br from-highlight/30 to-highlight-secondary/30 overflow-hidden">
                 <div className="w-full h-full bg-dark-300 flex items-center justify-center text-gray-600">
-                  <span className="text-lg">Profile Image</span>
+                  <img src="public/profile.jpeg" alt="No Image" />
                 </div>
               </div>
             </div>
@@ -75,12 +75,16 @@ const About = () => {
           >
             <h3 className="text-2xl font-bold">Professional <span className="text-gradient-gold">Summary</span></h3>
             <p className="text-gray-300">
-              I'm a creative professional with over 10 years of experience in digital design and development. 
-              My passion lies in creating meaningful digital experiences that merge aesthetics with functionality.
+              A passionate and dedicated professional with a strong background in web development, and Analytics.
+             
             </p>
             <p className="text-gray-300">
-              With a strong background in both design and development, I bring a unique perspective to projects 
-              that bridges technical implementation with creative vision.
+            Graduated from Murdoch University with a degree in Information Technology, Major in AI and data science, I have honed my skills in various technologies
+            and frameworks, including Angular, React, Node.js, and Python.
+            </p>
+            <p className="text-gray-300">
+              With a strong background in both Analytics and development, I bring a unique perspective to projects 
+              that bridges technical implementation with analytical vision.
             </p>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">

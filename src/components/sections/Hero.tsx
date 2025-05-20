@@ -17,9 +17,9 @@ const Hero = () => {
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
   
   const roles = [
-    "Creative Director",
-    "Full Stack Developer", 
-    "UI/UX Designer"
+    "Full stack Developer",
+    "Data Analytics Enthusiast",
+    "AI/ML Explorer",
   ];
 
   useEffect(() => {
