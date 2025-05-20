@@ -4,12 +4,12 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { Code, Palette, Globe, Lightbulb } from "lucide-react";
 
 const About = () => {
-  // Add scroll animations
+  // Add scroll animations only to the background, not the summary opacity
   const { scrollY } = useScroll();
   const y1 = useTransform(scrollY, [300, 900], [100, -100]);
   const y2 = useTransform(scrollY, [300, 900], [50, -50]);
   const opacity1 = useTransform(scrollY, [300, 400, 800, 900], [0, 1, 1, 0]);
-  const opacity2 = useTransform(scrollY, [400, 500, 800, 900], [0, 1, 1, 0]);
+  // const opacity2 = useTransform(scrollY, [400, 500, 800, 900], [0, 1, 1, 0]); // Removed
 
   const skills = [
     { name: "Development", icon: <Code size={24} />, description: "React, Node.js, TypeScript, Python" },
@@ -74,7 +74,7 @@ const About = () => {
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             viewport={{ once: true }}
-            style={{ opacity: opacity2 }}
+            // style={{ opacity: opacity2 }}  // Removed scroll-linked opacity
           >
             <h3 className="text-2xl font-bold">Professional <span className="text-gradient-gold">Summary</span></h3>
             <p className="text-gray-300">
