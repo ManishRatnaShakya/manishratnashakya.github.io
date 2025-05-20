@@ -45,7 +45,7 @@ export function Navbar() {
       )}
     >
       <div className="container px-4 mx-auto flex justify-between items-center">
-        <Link to="/" className="text-2xl font-bold text-gradient">Portfolio</Link>
+        <Link to="/" className="text-2xl font-bold text-gradient">Manish Shakya</Link>
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-8">
